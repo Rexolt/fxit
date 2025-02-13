@@ -21,13 +21,8 @@ import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.min
 
-// ==========================================
-// Adatstruktúrák
-// ==========================================
 
-/**
- * Globális beállítások a grafikus megjelenítéshez.
- */
+
 data class GraphSettings(
     var backgroundColor: Color = Color(30, 30, 30),
     var gridColor: Color = Color(60, 60, 60),
@@ -39,7 +34,9 @@ data class GraphSettings(
     var showIntersections: Boolean = true,
     var pointSize: Int = 8,
     var domainAlpha: Float = 0.1f,
-    var stepForNumericalSearch: Double = 0.01
+    var stepForNumericalSearch: Double = 0.01,
+    var invertColors: Boolean = false,
+    var leftPanelWidth: Int = 380
 )
 
 /**
@@ -56,13 +53,7 @@ data class FunctionData(
     var expression: Expression? = null
 )
 
-// ==========================================
-// Függvény bevitel panel
-// ==========================================
 
-/**
- * Panel, ahol egy függvény adatai szerkeszthetők.
- */
 class FunctionInputPanel(
     val onRemove: (panel: FunctionInputPanel) -> Unit
 ) : JPanel() {
@@ -134,12 +125,12 @@ class FunctionInputPanel(
         btnRemove.toolTipText = "Függvény törlése"
         add(btnRemove, gbc)
 
-        // Színválasztó
+
         btnColor.addActionListener {
             val newCol = JColorChooser.showDialog(this, "Válassz színt", btnColor.background)
             if (newCol != null) btnColor.background = newCol
         }
-        // Eltávolítás
+
         btnRemove.addActionListener { onRemove(this) }
     }
 
@@ -161,14 +152,8 @@ class FunctionInputPanel(
     }
 }
 
-// ==========================================
-// Grafikus panel
-// ==========================================
 
-/**
- * A grafikus panel, amely kirajzolja a rácsot, tengelyeket, függvényeket, domain sávot, zérushelyeket, metszéspontokat.
- * Támogatja a panningot, zoomolást (görgővel és gombbal) és a nézet visszaállítását.
- */
+
 class GraphPanel : JPanel() {
     var functionList: List<FunctionData> = emptyList()
     var graphSettings: GraphSettings = GraphSettings()
@@ -176,14 +161,14 @@ class GraphPanel : JPanel() {
     var intersectionPoints: List<Pair<Double, Double>> = emptyList()
     var scale = 40.0
 
-    // Panning offsetok
+
     var offsetX = 0
     var offsetY = 0
     private var lastDragX = 0
     private var lastDragY = 0
 
     init {
-        // Panning egérrel
+
         addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
                 lastDragX = e.x
@@ -201,7 +186,7 @@ class GraphPanel : JPanel() {
                 repaint()
             }
         })
-        // Zoomolás egérgörgővel
+        
         addMouseWheelListener { e: MouseWheelEvent ->
             if (e.wheelRotation < 0) zoomIn() else zoomOut()
         }
@@ -212,19 +197,19 @@ class GraphPanel : JPanel() {
         val g2 = g as Graphics2D
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-        // Háttér
+
         g2.color = graphSettings.backgroundColor
         g2.fillRect(0, 0, width, height)
 
-        // Középpont panninggel
+
         val centerX = width / 2 + offsetX
         val centerY = height / 2 + offsetY
 
-        // Rács
+
         if (graphSettings.showGrid) {
             g2.color = graphSettings.gridColor
             val stepPx = scale.toInt()
-            // Függőleges vonalak
+
             var xLine = centerX
             while (xLine < width) {
                 g2.drawLine(xLine, 0, xLine, height)
@@ -235,7 +220,7 @@ class GraphPanel : JPanel() {
                 g2.drawLine(xLine, 0, xLine, height)
                 xLine -= stepPx
             }
-            // Vízszintes vonalak
+
             var yLine = centerY
             while (yLine < height) {
                 g2.drawLine(0, yLine, width, yLine)
@@ -248,14 +233,14 @@ class GraphPanel : JPanel() {
             }
         }
 
-        // Tengelyek
+
         if (graphSettings.showAxis) {
             g2.color = graphSettings.axisColor
             g2.drawLine(0, centerY, width, centerY)
             g2.drawLine(centerX, 0, centerX, height)
         }
 
-        // Domain sáv
+
         if (graphSettings.showDomainArea) {
             functionList.forEach { fd ->
                 if (fd.visible && fd.showDomain) {
@@ -275,7 +260,7 @@ class GraphPanel : JPanel() {
             }
         }
 
-        // Függvények kirajzolása
+
         functionList.forEach { fd ->
             if (!fd.visible) return@forEach
             val expr = fd.expression ?: return@forEach
@@ -316,9 +301,7 @@ class GraphPanel : JPanel() {
         }
     }
 
-    /**
-     * Függvény kirajzolása adott tartományon, a megadott középponttal.
-     */
+
     private fun drawFunction(
         g2: Graphics2D,
         expr: Expression,
@@ -360,9 +343,7 @@ class GraphPanel : JPanel() {
         repaint()
     }
 
-    /**
-     * Nézet visszaállítása: alapértelmezett scale és panning offset.
-     */
+
     fun resetView() {
         scale = 40.0
         offsetX = 0
@@ -371,13 +352,8 @@ class GraphPanel : JPanel() {
     }
 }
 
-// ==========================================
-// Beállítások ablak
-// ==========================================
 
-/**
- * A beállításokat módosító ablak.
- */
+
 class SettingsDialog(
     owner: Frame?,
     private val settings: GraphSettings,
@@ -397,6 +373,9 @@ class SettingsDialog(
         foreground = Color.WHITE
     }
 
+    private val chkInvert = JCheckBox("Invert színséma", settings.invertColors)
+    private val spnLeftPanelWidth = JSpinner(SpinnerNumberModel(settings.leftPanelWidth, 200, 800, 10))
+
     init {
         layout = BorderLayout()
         val panel = JPanel(GridBagLayout())
@@ -406,56 +385,56 @@ class SettingsDialog(
             insets = Insets(5, 5, 5, 5)
         }
 
-        // Téma
+
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 1
         panel.add(JLabel("Téma:").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 0; gbc.gridwidth = 1
         cmbTheme.selectedItem = "FlatLaf Dark"
         panel.add(cmbTheme, gbc)
 
-        // Rács
+
         gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2
         chkGrid.background = panel.background
         chkGrid.foreground = Color.WHITE
         panel.add(chkGrid, gbc)
 
-        // Tengely
+
         gbc.gridy = 2
         chkAxis.background = panel.background
         chkAxis.foreground = Color.WHITE
         panel.add(chkAxis, gbc)
 
-        // Domain
+
         gbc.gridy = 3
         chkDomain.background = panel.background
         chkDomain.foreground = Color.WHITE
         panel.add(chkDomain, gbc)
 
-        // Zérushelyek
+
         gbc.gridy = 4
         chkZeros.background = panel.background
         chkZeros.foreground = Color.WHITE
         panel.add(chkZeros, gbc)
 
-        // Metszéspontok
+
         gbc.gridy = 5
         chkIntersections.background = panel.background
         chkIntersections.foreground = Color.WHITE
         panel.add(chkIntersections, gbc)
 
-        // Numerikus keresés lépés
+
         gbc.gridy = 6; gbc.gridwidth = 1
         panel.add(JLabel("Numerikus keresés lépés:").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 6
         panel.add(spnStep, gbc)
 
-        // Pontméret
+
         gbc.gridx = 0; gbc.gridy = 7
         panel.add(JLabel("Pontméret (zérus/metszés):").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 7
         panel.add(spnPointSize, gbc)
 
-        // Háttérszín
+
         gbc.gridx = 0; gbc.gridy = 8; gbc.gridwidth = 2
         btnBgColor.addActionListener {
             val col = JColorChooser.showDialog(this, "Háttérszín választása", btnBgColor.background)
@@ -463,7 +442,19 @@ class SettingsDialog(
         }
         panel.add(btnBgColor, gbc)
 
-        // Gombok
+
+        gbc.gridx = 0; gbc.gridy = 9; gbc.gridwidth = 1
+        panel.add(JLabel("Invert színséma:").apply { foreground = Color.WHITE }, gbc)
+        gbc.gridx = 1; gbc.gridy = 9
+        panel.add(chkInvert, gbc)
+
+
+        gbc.gridx = 0; gbc.gridy = 10; gbc.gridwidth = 1
+        panel.add(JLabel("Bal panel szélessége (px):").apply { foreground = Color.WHITE }, gbc)
+        gbc.gridx = 1; gbc.gridy = 10
+        panel.add(spnLeftPanelWidth, gbc)
+
+
         val bottomPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
         val btnOk = JButton("OK")
         val btnCancel = JButton("Mégse")
@@ -498,6 +489,19 @@ class SettingsDialog(
         settings.stepForNumericalSearch = (spnStep.value as Number).toDouble()
         settings.pointSize = (spnPointSize.value as Number).toInt()
         settings.backgroundColor = btnBgColor.background
+
+        // Új beállítások alkalmazása:
+        settings.invertColors = chkInvert.isSelected
+        settings.leftPanelWidth = (spnLeftPanelWidth.value as Number).toInt()
+        if (settings.invertColors) {
+            settings.backgroundColor = Color.WHITE
+            settings.gridColor = Color.LIGHT_GRAY
+            settings.axisColor = Color.BLACK
+        } else {
+            settings.backgroundColor = Color(30, 30, 30)
+            settings.gridColor = Color(60, 60, 60)
+            settings.axisColor = Color.WHITE
+        }
     }
 
     private fun trySetLookAndFeel(lafClass: String) {
@@ -506,16 +510,11 @@ class SettingsDialog(
     }
 }
 
-// ==========================================
-// Fő alkalmazás keret
-// ==========================================
+
 
 /**
  * A fő ablak, melyben a bal oldali menü (függvény bevitel + magyarázat) és a grafikus panel jelenik meg.
- * Továbbá tartalmazza a következő gombokat:
- * - Függvény műveletek: Új függvény hozzáadása, Függvények törlése
- * - Nézet vezérlés: Zoom In, Zoom Out, Nézet visszaállítás
- * - Egyéb funkciók: Beállítások, Számol & Rajzol, Exportálás, Inverz, Bal panel méret, Eredmény mentése
+ * A felső gombok csoportosítva vannak, és a File menüben találhatóak az exportálási módszerek.
  */
 class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
 
@@ -555,7 +554,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
             font = Font("Monospaced", Font.PLAIN, 12)
         }))
     }
-    // Alapértelmezett bal oldali panel méret
+    // A bal panel szélessége a GraphSettings-ben tárolt érték
     private var leftPanelWidth = 380
 
     // JSplitPane: bal oldal – menü, jobb oldal – grafikus panel
@@ -564,11 +563,10 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         isOneTouchExpandable = true
     }
 
-    // Státusz sáv a koordináták megjelenítéséhez
+
     private val lblCoordinates = JLabel(" ")
 
-    // Gombok létrehozása
-    // Függvény műveletek
+
     private val btnAddFunction = JButton("+").apply {
         font = Font(font.name, Font.BOLD, 20)
         background = Color(80, 80, 80)
@@ -595,7 +593,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         foreground = Color.WHITE
         toolTipText = "Alap nézet visszaállítása (zoom + panning)"
     }
-    // Egyéb funkciók
+
     private val btnSettings = JButton("Beállítások").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
@@ -605,34 +603,26 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         foreground = Color.WHITE
         font = Font(font.name, Font.BOLD, 14)
     }
-    private val btnExport = JButton("Exportálás").apply {
-        background = Color(80, 80, 80)
-        foreground = Color.WHITE
-        toolTipText = "Grafikon exportálása PNG fájlba"
-    }
-    private val btnInvert = JButton("Inverz").apply {
-        background = Color(80, 80, 80)
-        foreground = Color.WHITE
-        toolTipText = "Színséma váltás"
-    }
-    private val btnLeftPanelSize = JButton("Bal panel méret").apply {
-        background = Color(80, 80, 80)
-        foreground = Color.WHITE
-        toolTipText = "Állítsd be a bal oldali menü szélességét"
-    }
-    private val btnSaveLog = JButton("Eredmény mentése").apply {
-        background = Color(80, 80, 80)
-        foreground = Color.WHITE
-        toolTipText = "Eredmények mentése szövegfájlba"
+
+
+    private val menuBar = JMenuBar().apply {
+        val fileMenu = JMenu("File")
+        val miExportPNG = JMenuItem("Export PNG")
+        miExportPNG.addActionListener { exportGraphPanel() }
+        val miSaveLog = JMenuItem("Eredmény mentése")
+        miSaveLog.addActionListener { saveLog() }
+        fileMenu.add(miExportPNG)
+        fileMenu.add(miSaveLog)
+        add(fileMenu)
     }
 
-    // További komponens: eredmény kijelző (lblResult)
+    // eredmény kijelző (lblResult)
     private val lblResult = JLabel("<html><i>Eredmények itt</i></html>").apply {
         foreground = Color.LIGHT_GRAY
         preferredSize = Dimension(380, 80)
     }
 
-    // Gombok csoportosítása: három panelbe
+
     private val functionButtonsPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
         background = Color(40, 40, 40)
         add(btnAddFunction)
@@ -648,12 +638,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         background = Color(40, 40, 40)
         add(btnSettings)
         add(btnCalc)
-        add(btnExport)
-        add(btnInvert)
-        add(btnLeftPanelSize)
-        add(btnSaveLog)
     }
-    // A felső gombokat tartalmazó fő panel
     private val topPanel = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
         background = Color(40, 40, 40)
@@ -667,6 +652,8 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
     init {
         defaultCloseOperation = EXIT_ON_CLOSE
         layout = BorderLayout()
+        // Beállítjuk a menüsávot
+        jMenuBar = menuBar
 
         // A bal oldali menü összeállítása
         val leftPanel = JPanel(BorderLayout()).apply {
@@ -675,7 +662,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
             add(leftTabbedPane, BorderLayout.CENTER)
             add(lblResult, BorderLayout.SOUTH)
         }
-
         splitPane.leftComponent = leftPanel
         add(splitPane, BorderLayout.CENTER)
 
@@ -698,6 +684,8 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         btnCalc.addActionListener { doCalculate() }
         btnSettings.addActionListener {
             val dlg = SettingsDialog(this, graphSettings) {
+                // Alkalmazzuk az új bal panel szélességet:
+                splitPane.dividerLocation = graphSettings.leftPanelWidth
                 SwingUtilities.updateComponentTreeUI(this)
                 graphPanel.repaint()
             }
@@ -706,35 +694,8 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         btnZoomIn.addActionListener { graphPanel.zoomIn() }
         btnZoomOut.addActionListener { graphPanel.zoomOut() }
         btnResetView.addActionListener { graphPanel.resetView() }
-        btnExport.addActionListener { exportGraphPanel() }
-        btnInvert.addActionListener {
-            // Inverz színséma váltás
-            if (graphSettings.backgroundColor == Color(30, 30, 30)) {
-                graphSettings.backgroundColor = Color.WHITE
-                graphSettings.gridColor = Color.LIGHT_GRAY
-                graphSettings.axisColor = Color.BLACK
-            } else {
-                graphSettings.backgroundColor = Color(30, 30, 30)
-                graphSettings.gridColor = Color(60, 60, 60)
-                graphSettings.axisColor = Color.WHITE
-            }
-            graphPanel.repaint()
-        }
-        btnLeftPanelSize.addActionListener {
-            val input = JOptionPane.showInputDialog(this, "Add meg a bal panel szélességét (px):", leftPanelWidth)
-            if (input != null) {
-                try {
-                    leftPanelWidth = input.toInt()
-                    leftTabbedPane.preferredSize = Dimension(leftPanelWidth, leftTabbedPane.height)
-                    splitPane.dividerLocation = leftPanelWidth
-                } catch (ex: Exception) {
-                    JOptionPane.showMessageDialog(this, "Érvénytelen szám!", "Hiba", JOptionPane.ERROR_MESSAGE)
-                }
-            }
-        }
-        btnSaveLog.addActionListener { saveLog() }
 
-        // Koordináta követés a grafikus panelen
+
         graphPanel.addMouseMotionListener(object : MouseAdapter() {
             override fun mouseMoved(e: MouseEvent) {
                 val centerX = graphPanel.width / 2 + graphPanel.offsetX
@@ -751,9 +712,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         setLocationRelativeTo(null)
     }
 
-    /**
-     * Új függvény bevitel panel hozzáadása.
-     */
+
     private fun addFunctionPanel(expr: String, domainS: Double, domainE: Double, col: Color) {
         val fpanel = FunctionInputPanel { panelToRemove ->
             fvContainer.remove(panelToRemove)
@@ -818,9 +777,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         return list
     }
 
-    /**
-     * "Számol & Rajzol" eseménykezelő.
-     */
+
     private fun doCalculate() {
         try {
             val dataList = mutableListOf<FunctionData>()
@@ -837,7 +794,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                 dataList.add(fd)
             }
 
-            // Zérushelyek
+
             val zeroMap = mutableMapOf<FunctionData, List<Double>>()
             for (fd in dataList) {
                 val expr = fd.expression ?: continue
@@ -848,7 +805,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                 zeroMap[fd] = findZeros(expr, fd.domainStart, fd.domainEnd, graphSettings.stepForNumericalSearch)
             }
 
-            // Metszéspontok
+
             val allIntersections = mutableListOf<Pair<Double, Double>>()
             for (i in dataList.indices) {
                 for (j in i + 1 until dataList.size) {
@@ -923,9 +880,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         }
     }
 
-    /**
-     * Eredmény mentése szövegfájlba.
-     */
+
     private fun saveLog() {
         val fileChooser = JFileChooser()
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -942,9 +897,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         }
     }
 
-    /**
-     * Kis segéd random szín generálása.
-     */
+
     private fun randomColor(): Color {
         val h = Math.random().toFloat()
         val s = 0.5f + Math.random().toFloat() * 0.5f
@@ -953,7 +906,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
     }
 
     companion object {
-        // Globális függvények az exp4j számára
+
         val globalFunctions = listOf(
             object : Function("abs", 1) {
                 override fun apply(values: DoubleArray): Double = kotlin.math.abs(values[0])
@@ -996,9 +949,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
     }
 }
 
-// ==========================================
-// Globális LAF beállítás és belépési pont
-// ==========================================
+
 
 /**
  * Próbálja beállítani a FlatLaf Dark-ot, ha nem sikerül, akkor a rendszer LAF-ját.
@@ -1013,9 +964,7 @@ fun trySetGlobalLookAndFeel() {
     }
 }
 
-/**
- * A program belépési pontja.
- */
+
 fun main() {
     SwingUtilities.invokeLater {
         trySetGlobalLookAndFeel()
