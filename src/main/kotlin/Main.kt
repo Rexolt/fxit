@@ -7,17 +7,14 @@ import net.objecthunter.exp4j.ExpressionBuilder
 import net.objecthunter.exp4j.function.Function
 import net.objecthunter.exp4j.operator.Operator
 import java.awt.*
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
-import java.awt.event.ItemEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.*
 import kotlin.math.abs
-import kotlin.math.floor
 import kotlin.math.ceil
-import kotlin.math.log10
+import kotlin.math.floor
 import kotlin.math.log
+import kotlin.math.log10
 import kotlin.math.max
 import kotlin.math.min
 
@@ -187,7 +184,7 @@ class FunctionInputPanel(
  * A grafikus panel, ami:
  *  - megjeleníti a rácsot, tengelyeket (ha be van állítva)
  *  - minden függvényt kirajzol polivonallal a [domainStart, domainEnd] tartományban
- *  - domain sávot rajzol (ha showDomainArea be van kapcsolva, ill. a FunctionData.showDomain is true)
+ *  - domain sávot rajzol (ha showDomainArea be van kapcsolva, ill. a FunctionData.showDomain true)
  *  - zérushelyek és metszéspontok kirajzolása ponttal
  */
 class GraphPanel : JPanel() {
@@ -430,19 +427,19 @@ class SettingsDialog(
         chkDomain.foreground = Color.WHITE
         panel.add(chkDomain, gbc)
 
-        // Zero
+        // Zérushelyek
         gbc.gridy = 4
         chkZeros.background = panel.background
         chkZeros.foreground = Color.WHITE
         panel.add(chkZeros, gbc)
 
-        // Intersections
+        // Metszéspontok
         gbc.gridy = 5
         chkIntersections.background = panel.background
         chkIntersections.foreground = Color.WHITE
         panel.add(chkIntersections, gbc)
 
-        // Step
+        // Numerikus keresés lépés
         gbc.gridy = 6; gbc.gridwidth = 1
         val lblStep = JLabel("Numerikus keresés lépés:").apply {
             foreground = Color.WHITE
@@ -792,122 +789,122 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                 if (zs.isEmpty()) {
                     sb.append("<i>Nincs zérushely a domainben</i><br>")
                 } else {
-                    sb.append("Zérushelyek: ${zs.joinToString { \"%.4f\".format(it) }}<br>")
-                    }
-                            sb.append("<br>")
-                    }
-                        if (allIntersections.isNotEmpty()) {
-                            sb.append("<b>Metszéspontok:</b><br>")
-                            allIntersections.forEach { (mx, my) ->
-                                sb.append("x=%.4f, y=%.4f<br>".format(mx, my))
-                            }
-                        } else {
-                            sb.append("<i>Nincsenek metszéspontok vagy nincs legalább 2 látható függvény.</i>")
-                        }
-                                sb.append("</html>")
-                                lblResult.text = sb.toString()
-
-                } catch (ex: Exception) {
-                    ex.printStackTrace()
-                    JOptionPane.showMessageDialog(this, "Hiba: ${ex.message}", "Hiba", JOptionPane.ERROR_MESSAGE)
+                    sb.append("Zérushelyek: ${zs.joinToString { "%.4f".format(it) }}<br>")
                 }
+                sb.append("<br>")
             }
-
-            /**
-             * Kis segéd random szín generálás
-             */
-            private fun randomColor(): Color {
-                val h = Math.random().toFloat()
-                val s = 0.5f + Math.random().toFloat() * 0.5f
-                val b = 0.7f + Math.random().toFloat() * 0.3f
-                return Color.getHSBColor(h, s, b)
+            if (allIntersections.isNotEmpty()) {
+                sb.append("<b>Metszéspontok:</b><br>")
+                allIntersections.forEach { (mx, my) ->
+                    sb.append("x=%.4f, y=%.4f<br>".format(mx, my))
+                }
+            } else {
+                sb.append("<i>Nincsenek metszéspontok vagy nincs legalább 2 látható függvény.</i>")
             }
+            sb.append("</html>")
+            lblResult.text = sb.toString()
 
-            companion object {
-                // Globális függvények, amelyeket exp4j-ban pluszban regisztrálunk
-                val globalFunctions = listOf(
-                    // abs(x)
-                    object : Function("abs", 1) {
-                        override fun apply(values: DoubleArray): Double {
-                            return kotlin.math.abs(values[0])
-                        }
-                    },
-                    // sign(x) -> -1,0,+1
-                    object : Function("sign", 1) {
-                        override fun apply(values: DoubleArray): Double {
-                            val v = values[0]
-                            return when {
-                                v > 0.0 -> 1.0
-                                v < 0.0 -> -1.0
-                                else -> 0.0
-                            }
-                        }
-                    },
-                    // floor(x)
-                    object : Function("floor", 1) {
-                        override fun apply(values: DoubleArray): Double {
-                            return floor(values[0])
-                        }
-                    },
-                    // ceil(x)
-                    object : Function("ceil", 1) {
-                        override fun apply(values: DoubleArray): Double {
-                            return ceil(values[0])
-                        }
-                    },
-                    // log10(x)
-                    object : Function("log10", 1) {
-                        override fun apply(values: DoubleArray): Double {
-                            return log10(values[0])
-                        }
-                    },
-                    // log2(x)
-                    object : Function("log2", 1) {
-                        override fun apply(values: DoubleArray): Double {
-                            return log(values[0], 2.0)
-                        }
-                    }
-                )
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            JOptionPane.showMessageDialog(this, "Hiba: ${ex.message}", "Hiba", JOptionPane.ERROR_MESSAGE)
+        }
+    }
 
-                // Faktorális operátor
-                val factorialOperator = object : Operator("!", 1, true, Operator.PRECEDENCE_POWER + 1) {
-                    override fun apply(vararg values: Double): Double {
-                        val x = values[0]
-                        val n = x.toInt()
-                        if (n < 0) {
-                            throw ArithmeticException("Negatív számnak nincs klasszikus faktoriálisa!")
-                        }
-                        var f = 1.0
-                        for (i in 2..n) {
-                            f *= i
-                        }
-                        return f
+    /**
+     * Kis segéd random szín generálás
+     */
+    private fun randomColor(): Color {
+        val h = Math.random().toFloat()
+        val s = 0.5f + Math.random().toFloat() * 0.5f
+        val b = 0.7f + Math.random().toFloat() * 0.3f
+        return Color.getHSBColor(h, s, b)
+    }
+
+    companion object {
+        // Globális függvények, amelyeket exp4j-ban pluszban regisztrálunk
+        val globalFunctions = listOf(
+            // abs(x)
+            object : Function("abs", 1) {
+                override fun apply(values: DoubleArray): Double {
+                    return kotlin.math.abs(values[0])
+                }
+            },
+            // sign(x) -> -1, 0, +1
+            object : Function("sign", 1) {
+                override fun apply(values: DoubleArray): Double {
+                    val v = values[0]
+                    return when {
+                        v > 0.0 -> 1.0
+                        v < 0.0 -> -1.0
+                        else -> 0.0
                     }
                 }
-            }
-        }
-
-        /**
-         * Próbáljuk beállítani a FlatLaf Dark-ot. Ha nincs, fallback a system LAF.
-         */
-        fun trySetGlobalLookAndFeel() {
-            try {
-                UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf")
-            } catch (ex: Exception) {
-                try {
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
-                } catch (_: Exception) {
+            },
+            // floor(x)
+            object : Function("floor", 1) {
+                override fun apply(values: DoubleArray): Double {
+                    return floor(values[0])
+                }
+            },
+            // ceil(x)
+            object : Function("ceil", 1) {
+                override fun apply(values: DoubleArray): Double {
+                    return ceil(values[0])
+                }
+            },
+            // log10(x)
+            object : Function("log10", 1) {
+                override fun apply(values: DoubleArray): Double {
+                    return log10(values[0])
+                }
+            },
+            // log2(x)
+            object : Function("log2", 1) {
+                override fun apply(values: DoubleArray): Double {
+                    return log(values[0], 2.0)
                 }
             }
-        }
+        )
 
-        /**
-         * main() - a program belépési pontja.
-         */
-        fun main() {
-            SwingUtilities.invokeLater {
-                trySetGlobalLookAndFeel()
-                val frame = MainFrame()
-                frame.isVisible = true
+        // Faktorális operátor
+        val factorialOperator = object : Operator("!", 1, true, Operator.PRECEDENCE_POWER + 1) {
+            override fun apply(vararg values: Double): Double {
+                val x = values[0]
+                val n = x.toInt()
+                if (n < 0) {
+                    throw ArithmeticException("Negatív számnak nincs klasszikus faktoriálisa!")
+                }
+                var f = 1.0
+                for (i in 2..n) {
+                    f *= i
+                }
+                return f
             }
         }
+    }
+}
+
+/**
+ * Próbáljuk beállítani a FlatLaf Dark-ot. Ha nincs, fallback a system LAF.
+ */
+fun trySetGlobalLookAndFeel() {
+    try {
+        UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf")
+    } catch (ex: Exception) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+        } catch (_: Exception) {
+        }
+    }
+}
+
+/**
+ * main() - a program belépési pontja.
+ */
+fun main() {
+    SwingUtilities.invokeLater {
+        trySetGlobalLookAndFeel()
+        val frame = MainFrame()
+        frame.isVisible = true
+    }
+}
