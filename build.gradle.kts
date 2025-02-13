@@ -1,26 +1,51 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
-    kotlin("jvm") version "2.1.0"
+    kotlin("jvm") version "1.8.20"
+    application
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("org.beryx.jlink") version "2.25.0"
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+
+group = "demo.fvprojekt"
+version = "1.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("org.jetbrains.lets-plot:lets-plot-kotlin-jvm:4.3.0")
-    testImplementation(kotlin("test"))
+    implementation(kotlin("stdlib"))
     implementation("net.objecthunter:exp4j:0.4.8")
-    implementation("net.objecthunter:exp4j:0.4.8")
-    implementation("com.formdev:flatlaf:3.0")
-    implementation("com.formdev:flatlaf:3.0")
+    implementation("com.formdev:flatlaf:3.1")
 }
 
-tasks.test {
-    useJUnitPlatform()
+application {
+    // Kotlin DSL-ben így állítod be a mainClass-t:
+    mainClass.set("demo.fvprojekt.MainKt")
 }
-kotlin {
-    jvmToolchain(23)
+
+// Kotlin DSL-ben a kotlinOptions tipikusan így:
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}
+
+jlink {
+    options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
+    launcher {
+        name = "GraKot"
+    }
+    imageDir.set(file("$buildDir/image"))
+
+    jpackage {
+        installerType = "deb"
+        installerOptions.addAll(listOf("--linux-shortcut"))
+    }
+}
+
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    archiveClassifier.set("")
 }
