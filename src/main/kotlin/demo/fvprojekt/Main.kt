@@ -1,6 +1,6 @@
 @file:Suppress("SameParameterValue", "MemberVisibilityCanBePrivate")
 
-package demo.fvprojekt
+package demo.fvprojekt.demo.fvprojekt
 
 import net.objecthunter.exp4j.Expression
 import net.objecthunter.exp4j.ExpressionBuilder
