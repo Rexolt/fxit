@@ -17,8 +17,7 @@ import javax.swing.border.EmptyBorder
 import javax.swing.border.TitledBorder
 import kotlin.math.*
 
-
-
+/** Beállítások a grafikon rajzolásához */
 data class GraphSettings(
     var backgroundColor: Color = Color(30, 30, 30),
     var gridColor: Color = Color(60, 60, 60),
@@ -33,10 +32,10 @@ data class GraphSettings(
     var stepForNumericalSearch: Double = 0.01,
     var invertColors: Boolean = false,
     var leftPanelWidth: Int = 380,
-    var defaultFunctionFormat: String = "f(x)=" // Új beállítás: alap hozzárendelési szabály
+    var defaultFunctionFormat: String = "f(x)=" // Alap hozzárendelési szabály
 )
 
-
+/** Egy függvény adatai */
 data class FunctionData(
     var expressionText: String = "x",
     var domainStart: Double = -10.0,
@@ -48,15 +47,13 @@ data class FunctionData(
     var expression: Expression? = null
 )
 
-
+/** Világkoordináták egy pont esetén */
 data class WorldPoint(val x: Double, val y: Double)
 
-
+/** Integrációs terület adatai */
 data class IntegrationRegion(val expr: Expression, val a: Double, val b: Double, val color: Color)
 
-
-
-
+/** Egyenlet szerkesztő dialógus */
 class EquationEditorDialog(owner: Component, initialText: String) : JDialog(SwingUtilities.getWindowAncestor(owner), "Egyenlet szerkesztő", ModalityType.APPLICATION_MODAL) {
     private val txtEquation = JTextField(initialText, 25)
     var result: String? = null
@@ -65,7 +62,6 @@ class EquationEditorDialog(owner: Component, initialText: String) : JDialog(Swin
     init {
         layout = BorderLayout(5, 5)
         val insertPanel = JPanel(FlowLayout(FlowLayout.LEFT))
-
         val buttons = listOf("sin()", "cos()", "tan()", "log()", "sqrt()", "/")
         buttons.forEach { label ->
             val btn = JButton(label)
@@ -77,19 +73,16 @@ class EquationEditorDialog(owner: Component, initialText: String) : JDialog(Swin
             }
             insertPanel.add(btn)
         }
-
         val btnOk = JButton("OK")
         val btnCancel = JButton("Mégse")
         val btnPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
         btnPanel.add(btnOk)
         btnPanel.add(btnCancel)
-
         btnOk.addActionListener {
             result = txtEquation.text
             dispose()
         }
         btnCancel.addActionListener { dispose() }
-
         add(txtEquation, BorderLayout.NORTH)
         add(insertPanel, BorderLayout.CENTER)
         add(btnPanel, BorderLayout.SOUTH)
@@ -98,11 +91,7 @@ class EquationEditorDialog(owner: Component, initialText: String) : JDialog(Swin
     }
 }
 
-/*
-   Számológép dialógus
-   */
-
-
+/** Számológép dialógus */
 class CalculatorDialog(owner: Frame?) : JDialog(owner, "Számológép", false) {
     private val display = JTextField()
 
@@ -112,7 +101,6 @@ class CalculatorDialog(owner: Frame?) : JDialog(owner, "Számológép", false) {
         display.isEditable = false
         display.horizontalAlignment = JTextField.RIGHT
         add(display, BorderLayout.NORTH)
-
         val panel = JPanel(GridLayout(6, 4, 5, 5))
         val buttons = arrayOf(
             "sin", "cos", "tan", "log",
@@ -155,11 +143,7 @@ class CalculatorDialog(owner: Frame?) : JDialog(owner, "Számológép", false) {
     }
 }
 
-/*
-   Függvény bevitel panel
- */
-
-
+/** Függvény bevitel panel */
 class FunctionInputPanel(
     val onRemove: (panel: FunctionInputPanel) -> Unit
 ) : JPanel() {
@@ -172,7 +156,6 @@ class FunctionInputPanel(
     val chkVisible = JCheckBox("Látható", true)
     val chkDomain = JCheckBox("Domain", true)
     val btnRemove = JButton("✕")
-
     val btnEquationEditor = JButton("Szerk")
 
     init {
@@ -182,7 +165,6 @@ class FunctionInputPanel(
             insets = Insets(3, 3, 3, 3)
             fill = GridBagConstraints.HORIZONTAL
         }
-
         // 1. Sor: Expression + egyenlet szerkesztő gomb
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 1
         add(JLabel("f(x) =").apply { foreground = Color.WHITE }, gbc)
@@ -195,7 +177,6 @@ class FunctionInputPanel(
         btnEquationEditor.foreground = Color.WHITE
         btnEquationEditor.toolTipText = "Egyenlet szerkesztése"
         add(btnEquationEditor, gbc)
-
         btnEquationEditor.addActionListener {
             val dlg = EquationEditorDialog(this, txtExpression.text)
             dlg.isVisible = true
@@ -203,7 +184,6 @@ class FunctionInputPanel(
                 txtExpression.text = newExpr
             }
         }
-
         // 2. Sor: Domain
         gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 1
         add(JLabel("Domain: [").apply { foreground = Color.WHITE }, gbc)
@@ -219,7 +199,6 @@ class FunctionInputPanel(
         add(txtDomainEnd, gbc)
         gbc.gridx = 4
         add(JLabel("]").apply { foreground = Color.WHITE }, gbc)
-
         // 3. Sor: Szín és vonalvastagság
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 1
         btnColor.background = Color.ORANGE
@@ -230,7 +209,6 @@ class FunctionInputPanel(
         gbc.gridx = 2
         spnLineWidth.preferredSize = Dimension(60, 22)
         add(spnLineWidth, gbc)
-
         // 4. Sor: CheckBox-ok és törlés gomb
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 1
         chkVisible.background = background
@@ -246,13 +224,11 @@ class FunctionInputPanel(
         btnRemove.toolTipText = "Függvény törlése"
         add(btnRemove, gbc)
 
-
+        btnRemove.addActionListener { onRemove(this) }
         btnColor.addActionListener {
             val newCol = JColorChooser.showDialog(this, "Válassz színt", btnColor.background)
             if (newCol != null) btnColor.background = newCol
         }
-
-        btnRemove.addActionListener { onRemove(this) }
     }
 
     fun toFunctionData(): FunctionData {
@@ -273,7 +249,7 @@ class FunctionInputPanel(
     }
 }
 
-
+/** A grafikon rajzolásáért felelős panel */
 class GraphPanel : JPanel() {
     var functionList: List<FunctionData> = emptyList()
     var graphSettings: GraphSettings = GraphSettings()
@@ -281,32 +257,46 @@ class GraphPanel : JPanel() {
     var intersectionPoints: List<Pair<Double, Double>> = emptyList()
     var scale = 40.0
 
-
     var offsetX = 0
     var offsetY = 0
     private var lastDragX = 0
     private var lastDragY = 0
 
-
+    // Polygon rajzolásához
     var polygonMode: Boolean = false
     val polygonPoints: MutableList<WorldPoint> = mutableListOf()
 
-
+    // Integrációs régió
     var integrationRegion: IntegrationRegion? = null
 
-
+    // Derivált esetén megjelenítendő tangent vonal
     var tangentLine: FunctionData? = null
 
-    init {
+    // Új funkciók:
+    var animationParameter: Double = 0.0
+    var markerMode: Boolean = false
+    val markers: MutableList<WorldPoint> = mutableListOf()
 
+    init {
         addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
-                if (!polygonMode) {
+                if (!polygonMode && !markerMode) {
                     lastDragX = e.x
                     lastDragY = e.y
                 }
             }
             override fun mouseClicked(e: MouseEvent) {
+                // Marker mód: kattintáskor pont rögzítése
+                if (markerMode) {
+                    val centerX = width / 2 + offsetX
+                    val centerY = height / 2 + offsetY
+                    val worldX = (e.x - centerX) / scale.toDouble()
+                    val worldY = (centerY - e.y) / scale.toDouble()
+                    markers.add(WorldPoint(worldX, worldY))
+                    repaint()
+                    return
+                }
+                // Polygon mód
                 if (polygonMode) {
                     val centerX = width / 2 + offsetX
                     val centerY = height / 2 + offsetY
@@ -329,7 +319,7 @@ class GraphPanel : JPanel() {
         })
         addMouseMotionListener(object : MouseAdapter() {
             override fun mouseDragged(e: MouseEvent) {
-                if (!polygonMode) {
+                if (!polygonMode && !markerMode) {
                     val dx = e.x - lastDragX
                     val dy = e.y - lastDragY
                     offsetX += dx
@@ -355,6 +345,7 @@ class GraphPanel : JPanel() {
         val centerX = width / 2 + offsetX
         val centerY = height / 2 + offsetY
 
+        // Rács rajzolása
         if (graphSettings.showGrid) {
             g2.color = graphSettings.gridColor
             val minGridSpacingPx = 30.0
@@ -378,21 +369,17 @@ class GraphPanel : JPanel() {
             }
         }
 
+        // Tengelyek
         if (graphSettings.showAxis) {
             g2.color = graphSettings.axisColor
             g2.drawLine(0, centerY, width, centerY)
             g2.drawLine(centerX, 0, centerX, height)
-        }
-
-        if (graphSettings.showAxis) {
-            g2.color = graphSettings.axisColor
             g2.font = Font("SansSerif", Font.PLAIN, 10)
             val fm = g2.fontMetrics
             val tickLength = 5
             val minTickSpacingPx = 30.0
             val rawStep = minTickSpacingPx / scale
             val gridWorldStep = getNiceGridSpacing(rawStep)
-
             var lastLabelX: Int? = null
             var xTick = floor(-centerX / scale.toDouble() / gridWorldStep) * gridWorldStep
             while (xTick <= (width - centerX) / scale.toDouble()) {
@@ -429,6 +416,7 @@ class GraphPanel : JPanel() {
             g2.drawString("y", centerX + 5, 15)
         }
 
+        // Domain sávok
         if (graphSettings.showDomainArea) {
             functionList.forEach { fd ->
                 if (fd.visible && fd.showDomain) {
@@ -448,7 +436,7 @@ class GraphPanel : JPanel() {
             }
         }
 
-
+        // Integrációs terület rajzolása
         integrationRegion?.let { region ->
             val a = region.a
             val b = region.b
@@ -474,14 +462,19 @@ class GraphPanel : JPanel() {
             g2.fillPolygon(poly)
         }
 
-
+        // Függvények rajzolása – ha a függvény képletében szerepel "t", azt frissítjük az animationParameter alapján
+        fun prepareExpression(expr: Expression): Expression {
+            if (expr.variableNames.contains("t"))
+                expr.setVariable("t", animationParameter)
+            return expr
+        }
         functionList.forEach { fd ->
             if (!fd.visible) return@forEach
             val expr = fd.expression ?: return@forEach
-            drawFunction(g2, expr, fd.domainStart, fd.domainEnd, fd.lineColor, fd.lineStroke, centerX, centerY)
+            drawFunction(g2, prepareExpression(expr), fd.domainStart, fd.domainEnd, fd.lineColor, fd.lineStroke, centerX, centerY)
         }
 
-
+        // Zérushelyek rajzolása
         if (graphSettings.showZeroPoints) {
             g2.color = Color.MAGENTA
             zeroPointsMap.forEach { (fd, zlist) ->
@@ -499,7 +492,7 @@ class GraphPanel : JPanel() {
             }
         }
 
-
+        // Metszéspontok rajzolása
         if (graphSettings.showIntersections) {
             g2.color = Color.YELLOW
             intersectionPoints.forEach { (mx, my) ->
@@ -514,7 +507,7 @@ class GraphPanel : JPanel() {
             }
         }
 
-
+        // Tangens vonal rajzolása, ha van
         tangentLine?.let { tl ->
             val expr = tl.expression ?: return@let
             val origStroke = g2.stroke
@@ -523,7 +516,7 @@ class GraphPanel : JPanel() {
             g2.stroke = origStroke
         }
 
-
+        // Polygon rajzolása, ha aktív
         if (polygonMode && polygonPoints.isNotEmpty()) {
             g2.color = Color.CYAN
             val poly = polygonPoints.map { wp ->
@@ -546,8 +539,18 @@ class GraphPanel : JPanel() {
                 g2.color = Color.CYAN
             }
         }
-    }
 
+        // Marker pontok rajzolása (ha vannak)
+        if (markers.isNotEmpty()) {
+            g2.color = Color.RED
+            for (mp in markers) {
+                val px = (centerX + mp.x * scale).toInt()
+                val py = (centerY - mp.y * scale).toInt()
+                g2.fillOval(px - 4, py - 4, 8, 8)
+                g2.drawString("(${String.format("%.2f", mp.x)}, ${String.format("%.2f", mp.y)})", px + 6, py - 6)
+            }
+        }
+    }
 
     private fun drawFunction(
         g2: Graphics2D,
@@ -579,7 +582,7 @@ class GraphPanel : JPanel() {
         }
     }
 
-    // Segédfüggvény a "szép" rács lépés meghatározásához
+    // "Szép" rács lépés kiszámolása
     private fun getNiceGridSpacing(rawStep: Double): Double {
         val exponent = floor(log10(rawStep))
         val fraction = rawStep / 10.0.pow(exponent)
@@ -611,12 +614,10 @@ class GraphPanel : JPanel() {
 
     fun zoomToFit() {
         if (functionList.isEmpty()) return
-
         var globalMinX = Double.MAX_VALUE
         var globalMaxX = -Double.MAX_VALUE
         var globalMinY = Double.MAX_VALUE
         var globalMaxY = -Double.MAX_VALUE
-
         for (fd in functionList) {
             val expr = fd.expression ?: continue
             val steps = 1000
@@ -634,7 +635,6 @@ class GraphPanel : JPanel() {
             }
         }
         if (globalMaxX <= globalMinX || globalMaxY <= globalMinY) return
-
         val margin = 40.0
         val panelWidth = width - 2 * margin
         val panelHeight = height - 2 * margin
@@ -669,10 +669,7 @@ class GraphPanel : JPanel() {
     }
 }
 
-
-/**
- * beállítások.
- */
+/** Beállítások dialógus */
 class SettingsDialog(
     owner: Frame?,
     private val settings: GraphSettings,
@@ -703,83 +700,68 @@ class SettingsDialog(
             fill = GridBagConstraints.HORIZONTAL
             insets = Insets(5, 5, 5, 5)
         }
-
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 1
         panel.add(JLabel("Téma:").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 0; gbc.gridwidth = 1
         cmbTheme.selectedItem = "FlatLaf Dark"
         panel.add(cmbTheme, gbc)
-
         gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2
         chkGrid.background = panel.background
         chkGrid.foreground = Color.WHITE
         panel.add(chkGrid, gbc)
-
         gbc.gridy = 2
         chkAxis.background = panel.background
         chkAxis.foreground = Color.WHITE
         panel.add(chkAxis, gbc)
-
         gbc.gridy = 3
         chkDomain.background = panel.background
         chkDomain.foreground = Color.WHITE
         panel.add(chkDomain, gbc)
-
         gbc.gridy = 4
         chkZeros.background = panel.background
         chkZeros.foreground = Color.WHITE
         panel.add(chkZeros, gbc)
-
         gbc.gridy = 5
         chkIntersections.background = panel.background
         chkIntersections.foreground = Color.WHITE
         panel.add(chkIntersections, gbc)
-
         gbc.gridy = 6; gbc.gridwidth = 1
         panel.add(JLabel("Numerikus keresés lépés:").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 6
         panel.add(spnStep, gbc)
-
         gbc.gridx = 0; gbc.gridy = 7
         panel.add(JLabel("Pontméret (zérus/metszés):").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 7
         panel.add(spnPointSize, gbc)
-
         gbc.gridx = 0; gbc.gridy = 8; gbc.gridwidth = 2
         btnBgColor.addActionListener {
             val col = JColorChooser.showDialog(this, "Háttérszín választása", btnBgColor.background)
             if (col != null) btnBgColor.background = col
         }
         panel.add(btnBgColor, gbc)
-
         gbc.gridx = 0; gbc.gridy = 9; gbc.gridwidth = 1
         panel.add(JLabel("Invert színséma:").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 9
         panel.add(chkInvert, gbc)
-
         gbc.gridx = 0; gbc.gridy = 10; gbc.gridwidth = 1
         panel.add(JLabel("Bal panel szélessége (px):").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 10
         panel.add(spnLeftPanelWidth, gbc)
-
         gbc.gridx = 0; gbc.gridy = 11; gbc.gridwidth = 1
         panel.add(JLabel("Függvény hozzárendelési szabály:").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 11
         panel.add(txtDefaultMapping, gbc)
-
         val bottomPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
         val btnOk = JButton("OK")
         val btnCancel = JButton("Mégse")
         bottomPanel.add(btnOk)
         bottomPanel.add(btnCancel)
-
         btnOk.addActionListener {
             applySettings()
             onSettingsChanged()
             dispose()
         }
         btnCancel.addActionListener { dispose() }
-
         add(panel, BorderLayout.CENTER)
         add(bottomPanel, BorderLayout.SOUTH)
         pack()
@@ -801,7 +783,6 @@ class SettingsDialog(
         settings.stepForNumericalSearch = (spnStep.value as Number).toDouble()
         settings.pointSize = (spnPointSize.value as Number).toInt()
         settings.backgroundColor = btnBgColor.background
-
         settings.invertColors = chkInvert.isSelected
         settings.leftPanelWidth = (spnLeftPanelWidth.value as Number).toInt()
         settings.defaultFunctionFormat = txtDefaultMapping.text
@@ -822,8 +803,7 @@ class SettingsDialog(
     }
 }
 
-
-
+/** Főablak */
 class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
 
     private val graphPanel = GraphPanel().apply { preferredSize = Dimension(900, 700) }
@@ -837,7 +817,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
     ).apply { preferredSize = Dimension(380, 700) }
-
     private val leftTabbedPane = JTabbedPane().apply {
         addTab("Függvények", JPanel(BorderLayout()).apply {
             border = TitledBorder("Függvények")
@@ -854,6 +833,8 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
             5. Panninggal, zoomolással navigálhatsz.
             6. Az integrál, derivált, számológép funkciók segítségével extra műveletek végezhetők.
             7. A "Polygon Tool" gombgal poligon adatok is lekérhetők.
+            8. Az "Animate" gomb segítségével a függvényekben szereplő "t" paraméter értéke változtatható.
+            9. A "Marker Tool" lehetővé teszi, hogy a grafikonra kattintva jelölőpontokat helyezz el.
             """.trimIndent()
         ).apply {
             isEditable = false
@@ -870,7 +851,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
     }
 
     private val lblCoordinates = JLabel(" ")
-
 
     private val btnAddFunction = JButton("+").apply {
         font = Font(font.name, Font.BOLD, 20)
@@ -917,7 +897,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         foreground = Color.WHITE
         toolTipText = "Nyisd meg a számológépet"
     }
-
     private val btnDerivative = JButton("Derivált").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
@@ -932,6 +911,17 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         foreground = Color.WHITE
         font = Font(font.name, Font.BOLD, 14)
     }
+    // Új gombok:
+    private val btnMarkerTool = JToggleButton("Marker Tool").apply {
+        background = Color(80, 80, 80)
+        foreground = Color.WHITE
+        toolTipText = "Marker eszköz: kattints a grafikonra a pontok hozzáadásához"
+    }
+    private val btnAnimate = JButton("Animate").apply {
+        background = Color(80, 80, 80)
+        foreground = Color.WHITE
+        toolTipText = "Animálás: állítsd be a 't' paramétert"
+    }
 
     private val menuBar = JMenuBar().apply {
         val fileMenu = JMenu("File")
@@ -939,8 +929,14 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         miExportPNG.addActionListener { exportGraphPanel() }
         val miSaveLog = JMenuItem("Eredmény mentése")
         miSaveLog.addActionListener { saveLog() }
+        val miSaveSession = JMenuItem("Mentés (Munkamenet)")
+        miSaveSession.addActionListener { saveSession() }
+        val miLoadSession = JMenuItem("Betöltés (Munkamenet)")
+        miLoadSession.addActionListener { loadSession() }
         fileMenu.add(miExportPNG)
         fileMenu.add(miSaveLog)
+        fileMenu.add(miSaveSession)
+        fileMenu.add(miLoadSession)
         add(fileMenu)
     }
 
@@ -972,6 +968,9 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         add(btnIntegrate)
         add(btnCalculator)
         add(btnDerivative)
+        // Új gombok hozzáadása
+        add(btnAnimate)
+        add(btnMarkerTool)
     }
     private val topPanel = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -1075,7 +1074,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         btnCalculator.addActionListener {
             CalculatorDialog(this).isVisible = true
         }
-
         btnDerivative.addActionListener {
             val visibleFunctions = graphPanel.functionList.filter { it.visible && it.expression != null }
             if (visibleFunctions.isEmpty()) {
@@ -1103,10 +1101,9 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                     val derivative = (fPlus - fMinus) / (2 * h)
                     val fAtX = expr.setVariable("x", x0).evaluate()
                     JOptionPane.showMessageDialog(this, "A derivált értéke: %.4f".format(derivative))
-                    // Tangent vonal: L(x) = f(x0) + f'(x0) * (x - x0)
+                    // Tangens vonal: L(x) = f(x0) + f'(x0) * (x - x0)
                     val tangentExprStr = "$fAtX + $derivative*(x - $x0)"
                     val tangentExpr = ExpressionBuilder(tangentExprStr).variable("x").build()
-                    // Állítsuk be a tangent vonalat egy új FunctionData-ként
                     val tangentFunction = FunctionData(
                         expressionText = tangentExprStr,
                         domainStart = selectedFunction.domainStart,
@@ -1124,6 +1121,8 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                 }
             }
         }
+
+        // Egér koordináták megjelenítése
         graphPanel.addMouseMotionListener(object : MouseAdapter() {
             override fun mouseMoved(e: MouseEvent) {
                 val centerX = graphPanel.width / 2 + graphPanel.offsetX
@@ -1205,7 +1204,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                 val fpanel = fvContainer.getComponent(i) as? FunctionInputPanel ?: continue
                 val fd = fpanel.toFunctionData()
                 if (fd.expressionText.isBlank()) continue
-
                 val eBuilder = ExpressionBuilder(fd.expressionText).variable("x")
                 MainFrame.globalFunctions.forEach { eBuilder.function(it) }
                 eBuilder.operator(MainFrame.factorialOperator)
@@ -1213,7 +1211,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                 fd.expression = exp
                 dataList.add(fd)
             }
-
             val zeroMap = mutableMapOf<FunctionData, List<Double>>()
             for (fd in dataList) {
                 val expr = fd.expression ?: continue
@@ -1223,7 +1220,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                 }
                 zeroMap[fd] = findZeros(expr, fd.domainStart, fd.domainEnd, graphSettings.stepForNumericalSearch)
             }
-
             val allIntersections = mutableListOf<Pair<Double, Double>>()
             for (i in dataList.indices) {
                 for (j in i + 1 until dataList.size) {
@@ -1241,7 +1237,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                     }
                 }
             }
-
             graphPanel.functionList = dataList
             graphPanel.zeroPointsMap = zeroMap
             graphPanel.intersectionPoints = allIntersections
@@ -1268,7 +1263,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
             }
             sb.append("</html>")
             lblResult.text = sb.toString()
-
         } catch (ex: Exception) {
             ex.printStackTrace()
             JOptionPane.showMessageDialog(this, "Hiba: ${ex.message}", "Hiba", JOptionPane.ERROR_MESSAGE)
@@ -1307,6 +1301,94 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                 JOptionPane.showMessageDialog(this, "Mentés sikeres!")
             } catch (ex: Exception) {
                 JOptionPane.showMessageDialog(this, "Mentés hiba: ${ex.message}")
+            }
+        }
+    }
+
+    // Munkamenet mentése – függvények és marker pontok elmentése
+    private fun saveSession() {
+        val fileChooser = JFileChooser()
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            var file = fileChooser.selectedFile
+            if (!file.name.lowercase().endsWith(".session")) {
+                file = file.parentFile.resolve(file.name + ".session")
+            }
+            try {
+                val sb = StringBuilder()
+                // Függvények mentése
+                sb.appendLine(fvContainer.componentCount.toString())
+                for (i in 0 until fvContainer.componentCount) {
+                    val fpanel = fvContainer.getComponent(i) as? FunctionInputPanel ?: continue
+                    val fd = fpanel.toFunctionData()
+                    // Egyszerű formátum: expression;domainStart;domainEnd;#RRGGBB;lineStroke;visible;showDomain
+                    val line = listOf(
+                        fd.expressionText,
+                        fd.domainStart.toString(),
+                        fd.domainEnd.toString(),
+                        "#%06X".format(0xFFFFFF and fd.lineColor.rgb),
+                        fd.lineStroke.toString(),
+                        fd.visible.toString(),
+                        fd.showDomain.toString()
+                    ).joinToString(";")
+                    sb.appendLine(line)
+                }
+                // Marker pontok mentése
+                sb.appendLine(markersToString())
+                // További beállítások (pl. offset, scale) is menthetők
+                file.writeText(sb.toString())
+                JOptionPane.showMessageDialog(this, "Munkamenet mentése sikeres!")
+            } catch (ex: Exception) {
+                JOptionPane.showMessageDialog(this, "Mentés hiba: ${ex.message}")
+            }
+        }
+    }
+
+    private fun markersToString(): String {
+        val sb = StringBuilder()
+        sb.appendLine(graphPanel.markers.size.toString())
+        graphPanel.markers.forEach { mp ->
+            sb.appendLine("${mp.x};${mp.y}")
+        }
+        return sb.toString()
+    }
+
+    private fun loadSession() {
+        val fileChooser = JFileChooser()
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            val file = fileChooser.selectedFile
+            try {
+                val lines = file.readLines()
+                var index = 0
+                val functionCount = lines[index++].toInt()
+                fvContainer.removeAll()
+                for (i in 0 until functionCount) {
+                    val parts = lines[index++].split(";")
+                    if (parts.size >= 7) {
+                        val expr = parts[0]
+                        val domainStart = parts[1].toDoubleOrNull() ?: -10.0
+                        val domainEnd = parts[2].toDoubleOrNull() ?: 10.0
+                        val col = Color.decode(parts[3])
+                        // A többi érték (lineStroke, visible, showDomain) opcionálisan beállítható
+                        addFunctionPanel(graphSettings.defaultFunctionFormat + " " + expr, domainStart, domainEnd, col)
+                    }
+                }
+                // Marker pontok betöltése
+                val markerCount = lines[index++].toInt()
+                graphPanel.markers.clear()
+                for (i in 0 until markerCount) {
+                    val parts = lines[index++].split(";")
+                    if (parts.size >= 2) {
+                        val x = parts[0].toDoubleOrNull() ?: 0.0
+                        val y = parts[1].toDoubleOrNull() ?: 0.0
+                        graphPanel.markers.add(WorldPoint(x, y))
+                    }
+                }
+                fvContainer.revalidate()
+                fvContainer.repaint()
+                graphPanel.repaint()
+                JOptionPane.showMessageDialog(this, "Munkamenet betöltése sikeres!")
+            } catch (ex: Exception) {
+                JOptionPane.showMessageDialog(this, "Betöltés hiba: ${ex.message}")
             }
         }
     }
@@ -1356,7 +1438,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
                 override fun apply(values: DoubleArray): Double = log(values[0], 2.0)
             }
         )
-
         val factorialOperator = object : Operator("!", 1, true, Operator.PRECEDENCE_POWER + 1) {
             override fun apply(vararg values: Double): Double {
                 val x = values[0]
@@ -1370,10 +1451,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
     }
 }
 
-
-/**
- * Próbálja beállítani a FlatLaf Dark-ot, ha nem sikerül, akkor a rendszer LAF-ját.
- */
+/** FlatLaf beállítása */
 fun trySetGlobalLookAndFeel() {
     try {
         UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf")
@@ -1383,7 +1461,6 @@ fun trySetGlobalLookAndFeel() {
         } catch (_: Exception) { }
     }
 }
-
 
 fun main() {
     SwingUtilities.invokeLater {
