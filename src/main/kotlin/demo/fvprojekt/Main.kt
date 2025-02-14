@@ -1122,7 +1122,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
             }
         }
 
-        // Egér koordináták megjelenítése
         graphPanel.addMouseMotionListener(object : MouseAdapter() {
             override fun mouseMoved(e: MouseEvent) {
                 val centerX = graphPanel.width / 2 + graphPanel.offsetX
@@ -1305,7 +1304,6 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
         }
     }
 
-    // Munkamenet mentése – függvények és marker pontok elmentése
     private fun saveSession() {
         val fileChooser = JFileChooser()
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -1315,12 +1313,10 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
             }
             try {
                 val sb = StringBuilder()
-                // Függvények mentése
                 sb.appendLine(fvContainer.componentCount.toString())
                 for (i in 0 until fvContainer.componentCount) {
                     val fpanel = fvContainer.getComponent(i) as? FunctionInputPanel ?: continue
                     val fd = fpanel.toFunctionData()
-                    // Egyszerű formátum: expression;domainStart;domainEnd;#RRGGBB;lineStroke;visible;showDomain
                     val line = listOf(
                         fd.expressionText,
                         fd.domainStart.toString(),
@@ -1451,7 +1447,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
     }
 }
 
-/** FlatLaf beállítása */
+
 fun trySetGlobalLookAndFeel() {
     try {
         UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf")
