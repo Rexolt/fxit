@@ -32,7 +32,7 @@ data class GraphSettings(
     var stepForNumericalSearch: Double = 0.01,
     var invertColors: Boolean = false,
     var leftPanelWidth: Int = 380,
-    var defaultFunctionFormat: String = "f(x)=" // Alap hozzárendelési szabály
+    var defaultFunctionFormat: String = "f(x)="
 )
 
 
@@ -45,7 +45,7 @@ data class FunctionData(
     var visible: Boolean = true,
     var showDomain: Boolean = true,
     var expression: Expression? = null,
-    var isPolar: Boolean = false // Új: Polar függvény jelölése
+    var isPolar: Boolean = false 
 )
 
 
