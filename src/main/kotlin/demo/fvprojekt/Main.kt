@@ -99,7 +99,7 @@ class CalculatorDialog(owner: Frame?) : JDialog(owner, "Számológép", false) {
     init {
         layout = BorderLayout(5, 5)
         display.font = Font("SansSerif", Font.BOLD, 20)
-        display.isEditable = false
+        display.isEditable = true
         display.horizontalAlignment = JTextField.RIGHT
         add(display, BorderLayout.NORTH)
         val panel = JPanel(GridLayout(6, 4, 5, 5))
