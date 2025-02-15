@@ -1371,9 +1371,7 @@ class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
 }
 
 
-/**
- * Próbálja beállítani a FlatLaf Dark-ot, ha nem sikerül, akkor a rendszer LAF-ját.
- */
+
 fun trySetGlobalLookAndFeel() {
     try {
         UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf")
