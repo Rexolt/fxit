@@ -1014,7 +1014,7 @@ class SettingsDialog(
 }
 
 /** Főablak */
-class MainFrame : JFrame("Nagy Függvényábrázoló Példa") {
+class MainFrame : JFrame("f(xit)") {
 
     private val graphPanel = GraphPanel().apply { preferredSize = Dimension(900, 700) }
     private val fvContainer = JPanel().apply {
