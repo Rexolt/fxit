@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>f(xit) – Egyszerű Használati Utasítás</title>
+  <style>
+    body {
+      background: #f9f9f9;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      padding: 20px;
+      color: #333;
+    }
+    h1, h2, h3 {
+      color: #2c3e50;
+    }
+    h1 {
+      border-bottom: 2px solid #2c3e50;
+      padding-bottom: 10px;
+    }
+    ul {
+      margin-left: 20px;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    .step {
+      margin-bottom: 20px;
+    }
+    code {
+      background: #eee;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-family: Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>f(xit) – Egyszerű Használati Utasítás</h1>
+  
+  <h2>1. Mi is az f(xit)?</h2>
+  <p>
+    Az f(xit) egy könnyen használható matematikai alkalmazás, mely segít a függvények ábrázolásában és elemzésében. Használatával egyszerűen rajzolhatsz függvényeket, figyelheted azok változását (animáció), és kiszámolhatod az integrálokat és deriváltakat. Emellett extra eszközök (például jelölőpontok, poligonmérés) és jegyzetelési lehetőségek is rendelkezésre állnak.
+  </p>
+  
+  <h2>2. Fő Képernyő Áttekintése</h2>
+  <p>
+    Az alkalmazás két fő részből áll:
+  </p>
+  <ul>
+    <li><strong>Bal oldali panel:</strong> Itt találhatóak a vezérlőgombok és menük: Függvények bevitele, jegyzetek, magyarázat és beállítások.</li>
+    <li><strong>Jobb oldali panel:</strong> Ez a rész mutatja a függvények grafikus ábrázolását.</li>
+  </ul>
+  
+  <h2>3. Függvények Bevitele és Szerkesztése</h2>
+  <p class="step">
+    <strong>Lépés 1:</strong> Válaszd ki a <em>Függvények</em> fület a bal oldali panelen.<br>
+    <strong>Lépés 2:</strong> Kattints a <strong>+</strong> gombra, hogy új függvényt adj hozzá.<br>
+    <strong>Lépés 3:</strong> Írd be a függvény képletét a <code>f(x)=</code> mezőbe. Példa: <code>sin(x+t)</code>.<br>
+    <strong>Lépés 4:</strong> Állítsd be a függvény érvényességi tartományát (például -10 és 10).<br>
+    <strong>Lépés 5:</strong> Válaszd ki a vonal színét és vastagságát. Ha polár függvényt szeretnél, pipáld be a <strong>Polar</strong> opciót.<br>
+    <strong>Lépés 6:</strong> Ha szükséges, kattints a <strong>Szerk</strong> gombra a képlet módosításához.
+  </p>
+  
+  <h2>4. Grafikon Rajzolás és Navigáció</h2>
+  <p class="step">
+    <strong>Lépés 1:</strong> Miután megadtad a függvényeket, kattints a <strong>Számol & Rajzol</strong> gombra a bal oldali panelen. Ekkor a jobb oldali panelen megjelenik a függvény grafikonja.<br>
+    <strong>Lépés 2:</strong> A grafikonon az egérrel húzással eltolhatod a képet (panning).<br>
+    <strong>Lépés 3:</strong> Az egér görgőjével zoomolhatsz (nagyítasz vagy kicsinyítesz).
+  </p>
+  
+  <h2>5. Animáció</h2>
+  <p class="step">
+    <strong>Animálható függvény:</strong> Ha a függvény képletében szerepel a <code>t</code> változó (például <code>sin(x+t)</code>), az animáció engedélyezett.<br>
+    <strong>Animáció indítása:</strong> Kattints az <strong>Animate</strong> gombra, és az alkalmazás időzítő segítségével folyamatosan frissíti a <code>t</code> értékét, így a függvény görbéje mozog.<br>
+    <strong>Animáció leállítása:</strong> Ismét kattints az <strong>Animate</strong> gombra, hogy megállítsd az animációt.
+  </p>
+  
+  <h2>6. Integrál és Derivált Számítás</h2>
+  <h3>Integrál Számítás</h3>
+  <p class="step">
+    <strong>Lépés 1:</strong> Válaszd ki azt a függvényt, amelyre integrált szeretnél számolni.<br>
+    <strong>Lépés 2:</strong> Add meg az integrálási intervallum alsó és felső határát (például -1 és 1).<br>
+    <strong>Lépés 3:</strong> Kattints az <strong>Integrál</strong> gombra, és a program kiszámolja a függvény integrálját, valamint megjeleníti az integrációs területet.
+  </p>
+  <h3>Derivált Számítás</h3>
+  <p class="step">
+    <strong>Lépés 1:</strong> Válaszd ki a függvényt, amelynek a deriváltját szeretnéd számolni.<br>
+    <strong>Lépés 2:</strong> Add meg azt az <code>x</code> értéket, ahol a deriváltat számolni szeretnéd.<br>
+    <strong>Lépés 3:</strong> Kattints a <strong>Derivált</strong> gombra, és a program kiszámolja a deriváltat, majd kirajzolja a hozzá tartozó tangent vonalat.
+  </p>
+  
+  <h2>7. Extra Funkciók</h2>
+  <p class="step">
+    <strong>Poligon Eszköz:</strong><br>
+    - Kattints a <strong>Polygon Tool</strong> gombra.<br>
+    - Kattints a grafikonra, hogy több pontot rögzíts.<br>
+    - Dupla kattintással zárd le a poligont, ekkor megjelenik a poligon területe és kerülete.
+  </p>
+  <p class="step">
+    <strong>Marker Eszköz:</strong><br>
+    - Aktiváld a <strong>Marker Tool</strong> gombot.<br>
+    - Kattints a grafikonra, hogy marker pontokat rögzíts, melyek koordinátái megjelennek.<br>
+    - A <strong>Clear Markers</strong> gomb eltávolítja a marker pontokat.
+  </p>
+  <p class="step">
+    <strong>Számológép:</strong><br>
+    - Kattints a <strong>Számológép</strong> gombra a bal oldali panelen, és használd az alapvető matematikai műveletekhez.
+  </p>
+  
+  <h2>8. Jegyzetelés</h2>
+  <p class="step">
+    <strong>Jegyzetek fül:</strong> A bal oldali panelen válaszd a <strong>Jegyzetek</strong> fület.<br>
+    <strong>Mód kiválasztása:</strong> A legördülő menüből választhatsz két mód között:
+  </p>
+  <ul>
+    <li><strong>Plain mód:</strong> Egyszerű szövegszerkesztő, ahol szabadon jegyzetelhetsz. Az <strong>Egyenlet beszúrása</strong> gomb segít matematikai képletek beszúrásában.</li>
+    <li><strong>Markdown mód:</strong> Támogatja a formázást (címsorok, félkövér, dőlt) és a LaTeX-szerű matematikai kifejezéseket. Az <strong>Előnézet</strong> gomb megmutatja a formázott jegyzetet.</li>
+  </ul>
+  <p class="step">
+    A jegyzeteket elmentheted és betöltheted későbbi használatra.
+  </p>
+  
+  <h2>9. Beállítások és Testreszabás</h2>
+  <p class="step">
+    A <strong>Beállítások</strong> dialógusban módosíthatod az alkalmazás megjelenését és működését:
+  </p>
+  <ul>
+    <li><strong>Téma kiválasztása:</strong> Választhatsz a megjelenési stílusok (sötét, világos) közül.</li>
+    <li><strong>Grafikus elemek:</strong> Beállíthatod a rács, tengelyek, domain sáv, zérushelyek és metszéspontok megjelenítését.</li>
+    <li><strong>Numerikus paraméterek:</strong> Módosíthatod a numerikus keresés lépését és a megjelenő pontok méretét.</li>
+    <li><strong>Bal oldali panel mérete:</strong> Testreszabhatod a bal oldali vezérlő sáv szélességét.</li>
+    <li><strong>Függvény hozzárendelési szabály:</strong> Állítsd be az alapértelmezett képlet előtagját.</li>
+    <li><strong>Invert színséma:</strong> Válthatsz sötét és világos mód között.</li>
+  </ul>
+  
+  <h2>10. Futtatás és Telepítés</h2>
+  <p class="step">
+    <strong>Előkészületek:</strong> Győződj meg róla, hogy a számítógépen telepítve van a Java 8 (vagy újabb) és, ha szükséges, a Kotlin futtatókörnyezet.<br>
+    <strong>Telepítés:</strong> Klónozd vagy töltsd le a f(xit) projektet, majd nyisd meg a kedvenc programozói környezetedben (például IntelliJ IDEA).<br>
+    <strong>Futtatás:</strong> Fordítsd le a kódot, majd futtasd a <code>main()</code> függvényt a <code>MainFrame</code> osztályban.
+  </p>
+  
+  <h2>11. Tanulási Segédlet</h2>
+  <p class="step">
+    A f(xit) alkalmazás remek lehetőséget kínál a matematikai függvények vizualizációjára, és segítséget nyújt a numerikus számítási módszerek (integrál, derivált) megértésében. Javasoljuk, hogy:
+  </p>
+  <ul>
+    <li>Próbálj ki több különböző függvényt, például animálható függvényeket (ahol <code>t</code> változó szerepel) vagy polár függvényeket.</li>
+    <li>Használd az extra eszközöket (marker, poligon) a grafikon részleteinek vizsgálatához.</li>
+    <li>Jegyzeteld le az észrevételeidet a Plain vagy Markdown jegyzetelési módok segítségével – ez segít a tanulásban és a későbbi visszakeresésben.</li>
+    <li>A beállításokban módosíthatod az alkalmazás megjelenését, így saját preferenciáid szerint alakíthatod a felületet.</li>
+  </ul>
+  
+  <h2>Összegzés</h2>
+  <p>
+    A f(xit) egy egyszerűen használható, átlátható alkalmazás, amely segít a matematikai függvények ábrázolásában és elemzésében. Tanárok és diákok számára egyaránt hasznos, hiszen könnyen elérhető funkciói révén gyorsan megérthető a függvények viselkedése, és lehetőség van a jegyzetelésre is a tanulás támogatása érdekében.
+  </p>
+  
+</body>
+</html>

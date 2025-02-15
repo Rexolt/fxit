@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>f(xit) – Kezdőlap</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f7f9;
+      color: #333;
+    }
+    header {
+      background: #2c3e50;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+    }
+    header img {
+      height: 60px;
+      margin-right: 20px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+    .container {
+      max-width: 960px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .intro {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .card-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .card p {
+      font-size: 0.95em;
+      line-height: 1.4;
+    }
+    .card a {
+      display: inline-block;
+      margin-top: 15px;
+      text-decoration: none;
+      color: #2980b9;
+      font-weight: bold;
+      border: 1px solid #2980b9;
+      padding: 8px 16px;
+      border-radius: 4px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .card a:hover {
+      background: #2980b9;
+      color: #fff;
+    }
+    footer {
+      background: #2c3e50;
+      color: #fff;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="fxitlogo.png" alt="f(xit) Logo">
+    <h1</h1>
+  </header>
+  <div class="container">
+    <div class="intro">
+      <h2>Üdvözlünk a f(xit) Dokumentációban</h2>
+      <p>
+        f(xit) egy interaktív matematikai eszköz, mely segít a függvények ábrázolásában, animációjában, valamint integrál- és deriválszámításban. Válaszd ki, melyik dokumentáció érdekel:
+      </p>
+    </div>
+    <div class="card-container">
+      <div class="card">
+        <h2>Használati útmutató</h2>
+        <p>
+          Lépésről lépésre bemutatjuk, hogyan kell használni a f(xit) alkalmazást. Megtudhatod, hogyan vidd fel a függvényeket, navigálj a grafikonnal, indítsd el az animációt, és számold ki az integrált illetve a deriváltat.
+        </p>
+        <a href="használat.html">További információ</a>
+      </div>
+      <div class="card">
+        <h2>Kód dokumentáció</h2>
+        <p>
+          Részletes leírás a f(xit) forráskódjáról. Megismerheted az alkalmazás felépítését, a fő osztályokat, metódusokat, valamint a belső működési logikát, így könnyebben tanulhatsz és fejleszthetsz.
+        </p>
+        <a href="Kód_dokumentáció.html">További információ</a>
+      </div>
+
+    </div>
+    <div class="card-container">
+      <div class="card">
+        <h2>Nem találsz valamit?</h2>
+        <p>
+         írj nekünk! Megpróbálunk segíteni!
+        </p>
+        <a href="https://github.com/Rexolt/fxit/issues">GitHub issues</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 f(xit) – Minden jog fenntartva.
+  </footer>
+</body>
+</html>

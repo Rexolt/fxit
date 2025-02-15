@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>f(xit) – Részletes Dokumentáció</title>
+  <style>
+    body {
+      background: #f4f7f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      padding: 20px;
+      color: #333;
+    }
+    h1, h2, h3, h4 {
+      color: #2c3e50;
+      margin-top: 24px;
+    }
+    h1 {
+      border-bottom: 2px solid #2c3e50;
+      padding-bottom: 10px;
+    }
+    a {
+      color: #2980b9;
+    }
+    pre, code {
+      background: #ecf0f1;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-family: Consolas, monospace;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid #bdc3c7;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    ul, ol {
+      margin-left: 20px;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>f(xit) – Részletes Dokumentáció</h1>
+  
+  <h2>Tartalom</h2>
+  <ul>
+    <li><a href="#bevezetes">Bevezetés</a></li>
+    <li><a href="#alkalmazas-overview">Alkalmazás Áttekintés</a></li>
+    <li><a href="#projektszerkezet">Projektszerkezet és Fő Osztályok</a></li>
+    <li><a href="#fuggveny-bevitel">Függvény Használata és Bevitele</a></li>
+    <li><a href="#grafikon-rajzolas">Grafikon Rajzolás és Navigáció</a></li>
+    <li><a href="#animacio">Animáció</a></li>
+    <li><a href="#integral-derivalt">Integrál és Derivált Számítás</a></li>
+    <li><a href="#extra">Extra Funkciók</a></li>
+    <li><a href="#jegyzeteles">Jegyzetelés (Plain és Markdown mód)</a></li>
+    <li><a href="#beallitasok">Beállítások és Testreszabás</a></li>
+    <li><a href="#futtatas">Futtatás és Telepítés</a></li>
+    <li><a href="#fejlesztes">Fejlesztési Ötletek és Tanulási Segédlet</a></li>
+  </ul>
+  
+  <h2 id="bevezetes">Bevezetés</h2>
+  <p>
+    A f(xit) egy interaktív matematikai grafikonrajzoló és elemző alkalmazás, amely nemcsak a függvények megjelenítését, hanem az animáció, integrál- és deriválszámítás, valamint számos extra eszköz (például marker, poligonmérés, beépített számológép és jegyzetelési lehetőségek) funkcióját kínálja. Ez az alkalmazás kiváló tanulási hely, mivel a kód jól dokumentált, könnyen érthető és továbbfejleszthető.
+  </p>
+  
+  <h2 id="alkalmazas-overview">Alkalmazás Áttekintés</h2>
+  <p>
+    A f(xit) célja, hogy egy átfogó környezetet biztosítson a matematikai függvények vizualizációjához és elemzéséhez. Az alkalmazás több modulból áll:
+  </p>
+  <ol>
+    <li><strong>Grafikus Felület:</strong> A <code>MainFrame</code> osztály biztosítja az alapvető felhasználói felületet, melyet egy <code>JSplitPane</code> választ ketté: a bal oldali vezérlőpanel (függvény bevitel, jegyzetek, beállítások) és a jobb oldali grafikon megjelenítő (<code>GraphPanel</code>).</li>
+    <li><strong>Függvénykezelés:</strong> A <code>FunctionInputPanel</code> osztályban adhatod meg a függvény képletét, domain határait és megjelenési beállításait.</li>
+    <li><strong>Számítási Modulok:</strong> Az integrál és derivált számításokat numerikus módszerekkel végezzük el.</li>
+    <li><strong>Extra Eszközök:</strong> Marker, poligonmérés, beépített számológép és egyéb funkciók segítik az elemzést.</li>
+    <li><strong>Jegyzetelési Modul:</strong> Két módot kínál – Plain és Markdown –, amelyek lehetővé teszik a felhasználó számára, hogy jegyzeteket készítsen a függvényekről és számításokról.</li>
+  </ol>
+  
+  <h2 id="projektszerkezet">Projektszerkezet és Fő Osztályok</h2>
+  <p>
+    Az alkalmazás a következő fő osztályokból épül fel:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Osztály</th>
+        <th>Funkció</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>GraphSettings</code></td>
+        <td>Tárolja a grafikus megjelenés beállításait (pl. háttérszín, rács, tengelyek, domain sáv átlátszósága).</td>
+      </tr>
+      <tr>
+        <td><code>FunctionData</code></td>
+        <td>A felhasználó által bevitt függvény képletét, domain határait és megjelenési paramétereit tartalmazza, továbbá jelzi, hogy polár függvényről van-e szó.</td>
+      </tr>
+      <tr>
+        <td><code>GraphPanel</code></td>
+        <td>A függvények kirajzolásáért felelős panel. Itt történik a koordináta rendszer megjelenítése, a rács, tengelyek, függvény görbék, zérushelyek, metszéspontok, marker pontok, integrációs terület, animáció és poligon rajzolása.</td>
+      </tr>
+      <tr>
+        <td><code>FunctionInputPanel</code></td>
+        <td>Lehetővé teszi a függvény képletének, domain határainak és megjelenítési beállításainak megadását.</td>
+      </tr>
+      <tr>
+        <td><code>EquationEditorDialog</code></td>
+        <td>Egy dialógus, amely segít a matematikai képletek szerkesztésében, támogatva a függvények beszúrását.</td>
+      </tr>
+      <tr>
+        <td><code>CalculatorDialog</code></td>
+        <td>Egy beépített számológép, amely az alap matematikai műveleteket támogatja.</td>
+      </tr>
+      <tr>
+        <td><code>NotesPanel</code>, <code>PlainNotePanel</code>, <code>MarkdownNotePanel</code></td>
+        <td>A jegyzetelési modul, mely Plain és Markdown módokat kínál, így a felhasználó jegyzeteket készíthet formázott szöveges tartalommal.</td>
+      </tr>
+      <tr>
+        <td><code>SettingsDialog</code></td>
+        <td>A felhasználói beállításokat tartalmazó dialógus, ahol a megjelenítési opciókat, téma beállításokat, numerikus paramétereket és egyéb opciókat lehet módosítani.</td>
+      </tr>
+      <tr>
+        <td><code>MainFrame</code></td>
+        <td>A fő ablak, amely összehangolja az összes komponenst, például a JSplitPane bal és jobb oldalát, és a menürendszert.</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2 id="fuggveny-bevitel">Függvény Használata és Bevitele</h2>
+  <p>
+    A függvény bevitele a <code>FunctionInputPanel</code>-on keresztül történik, ahol a következő mezők érhetők el:
+  </p>
+  <ul>
+    <li><strong>Képlet:</strong> Írd be a függvény matematikai képletét. Példa: <code>f(x)= sin(x+t)</code>. Ha a képlet tartalmazza a <code>t</code> változót, az animáció engedélyezve lesz.</li>
+    <li><strong>Domain:</strong> Állítsd be a függvény érvényességi tartományát, például [-10, 10].</li>
+    <li><strong>Szín és Vonalvastagság:</strong> Válaszd ki a függvény kirajzolásához használt színt és a vonal vastagságát.</li>
+    <li><strong>Polar mód:</strong> Ha a függvény polár, jelöld be a <code>Polar</code> opciót.</li>
+  </ul>
+  <p>
+    Példa:
+  </p>
+  <pre><code>f(x)= sin(x+t)</code></pre>
+  <p>
+    Ebben a példában a <code>t</code> változó miatt az animáció engedélyezett, így a "Animate" gomb megnyomásával a függvény görbéje időben változni fog.
+  </p>
+  
+  <h2 id="grafikon-rajzolas">Grafikon Rajzolás és Navigáció</h2>
+  <p>
+    A grafikon kirajzolása a <code>GraphPanel</code> osztályban történik, és a következő lépésekből áll:
+  </p>
+  <ol>
+    <li>
+      <strong>Háttér és Rács:</strong> A panel háttérszínét a <code>GraphSettings.backgroundColor</code> határozza meg, míg a rács automatikusan „szép” léptékekkel készül el a jelenlegi zoom érték alapján.
+    </li>
+    <li>
+      <strong>Koordináta rendszer:</strong> A <code>offsetX</code> és <code>offsetY</code> segítségével a grafikon középpontja eltolható. Az x és y tengelyek, valamint a tick-ek automatikusan megjelennek.
+    </li>
+    <li>
+      <strong>Domain sávok:</strong> A függvények domain-je vizuálisan elkülönül, árnyékolt sávként jelenik meg, így könnyen felismerhető, mely tartományban értelmezett a függvény.
+    </li>
+    <li>
+      <strong>Függvény Görbék:</strong> A függvény képlete alapján a pontokat kiszámoljuk és összekötjük vonalakkal. Ha a függvény polár, a <code>drawPolarFunction()</code> metódus végzi a speciális átalakítást.
+    </li>
+    <li>
+      <strong>Interaktivitás:</strong> 
+      <ul>
+        <li><em>Panning:</em> Az egér húzásával a grafikon bármely részét elérheted.</li>
+        <li><em>Zoomolás:</em> Az egér görgőjével a skála növelhető vagy csökkenthető.</li>
+      </ul>
+    </li>
+  </ol>
+  
+  <h2 id="animacio">Animáció</h2>
+  <p>
+    Az animációs funkció a függvények dinamikus megjelenítését teszi lehetővé:
+  </p>
+  <ul>
+    <li>A <code>GraphPanel</code> minden újrarajzolásakor ellenőrzi, hogy a függvény képletében szerepel-e a <code>t</code> változó.</li>
+    <li>Ha igen, egy Timer 50 ms-onként 0.1-gyel növeli az <code>animationParameter</code> értékét, és ennek hatására a függvény értékelése frissül.</li>
+    <li>Példa: <code>f(x)= sin(x+t)</code> – így a sinus görbe hullámzó mozgást mutat.</li>
+  </ul>
+  
+  <h2 id="integral-derivalt">Integrál és Derivált Számítás</h2>
+  <h3>Integrál Számítás</h3>
+  <ul>
+    <li>A felhasználó kiválaszt egy függvényt, majd megadhatja az integrálás intervallumának alsó és felső határát.</li>
+    <li>A program a trapezoid szabályt alkalmazza a numerikus integrál számításhoz.</li>
+    <li>Az integrációs terület árnyékolása vizuális visszajelzést nyújt.</li>
+  </ul>
+  <h3>Derivált Számítás</h3>
+  <ul>
+    <li>A felhasználó megadhatja azt az <code>x</code> értéket, ahol szeretné kiszámolni a függvény deriváltját.</li>
+    <li>A középső differencia módszer (<code>(f(x+h) - f(x-h))/(2h)</code>) alapján számoljuk ki a deriváltat.</li>
+    <li>A kapott derivált értéket felhasználva generáljuk a tangent vonal egyenletét, majd kirajzoljuk a grafikonon.</li>
+  </ul>
+  
+  <h2 id="extra">Extra Funkciók</h2>
+  <ul>
+    <li>
+      <strong>Poligon Eszköz:</strong>
+      <ul>
+        <li>A felhasználó a grafikonon kattintással több pontot rögzíthet.</li>
+        <li>Dupla kattintással lezárja a poligont, majd a program kiszámítja a poligon területét és kerületét.</li>
+      </ul>
+    </li>
+    <li>
+      <strong>Marker Eszköz:</strong>
+      <ul>
+        <li>Marker módban a grafikonra kattintva rögzíthetsz pontokat, melyek koordinátái megjelennek.</li>
+        <li>A "Clear Markers" gomb eltávolítja az összes marker pontot.</li>
+      </ul>
+    </li>
+    <li>
+      <strong>Számológép:</strong>
+      <ul>
+        <li>A beépített számológép dialógus támogatja az alapvető műveleteket, így gyorsan elvégezhetők az egyszerű számítások.</li>
+      </ul>
+    </li>
+  </ul>
+  
+  <h2 id="jegyzeteles">Jegyzetelés (Plain és Markdown mód)</h2>
+  <p>
+    A jegyzetelési modul két módot kínál:
+  </p>
+  <h3>Plain mód</h3>
+  <ul>
+    <li>Egyszerű szövegszerkesztő felület, ahol szabadon írhatod meg a jegyzeteidet.</li>
+    <li>Az "Egyenlet beszúrása" gomb megnyitja az egyenletszerkesztő dialógust, így könnyen beszúrhatsz matematikai képleteket.</li>
+    <li>Mentés és betöltés funkciók állnak rendelkezésre.</li>
+  </ul>
+  <h3>Markdown mód</h3>
+  <ul>
+    <li>Támogatja a Markdown szintaxist:
+      <ul>
+        <li><strong>Címsorok:</strong> <code>#</code>, <code>##</code>, <code>###</code> stb.</li>
+        <li><strong>Félkövér:</strong> <code>**szöveg**</code></li>
+        <li><strong>Dőlt:</strong> <code>*szöveg*</code></li>
+      </ul>
+    </li>
+    <li>Továbbá támogatja a LaTeX-szerű matematikai kifejezéseket (<code>$...$</code> vagy <code>$$...$$</code>), melyeket a rendszer HTML-re konvertál az előnézetben.</li>
+    <li>A jegyzetek előnézete megtekinthető, valamint a tartalom menthető és betölthető.</li>
+  </ul>
+  
+  <h2 id="beallitasok">Beállítások és Testreszabás</h2>
+  <p>
+    A <code>SettingsDialog</code> segítségével testreszabhatod az alkalmazás viselkedését és megjelenését:
+  </p>
+  <ul>
+    <li><strong>Téma kiválasztása:</strong> Választhatsz FlatLaf Dark, FlatLaf Light, FlatLaf IntelliJ vagy a rendszer alapú megjelenítést.</li>
+    <li><strong>Grafikus beállítások:</strong> Itt szabályozhatod a rács, tengelyek, domain sáv, zérushelyek és metszéspontok megjelenítését.</li>
+    <li><strong>Numerikus paraméterek:</strong> Állítsd be a numerikus keresés lépését és a megjelenő pontok méretét.</li>
+    <li><strong>Bal oldali panel mérete:</strong> Testreszabhatod a bal oldali vezérlő sáv szélességét.</li>
+    <li><strong>Függvény hozzárendelési szabály:</strong> Megadhatod az alapértelmezett függvény képlet előtagját.</li>
+    <li><strong>Invert színséma:</strong> Válthatod az alkalmazás színsémáját sötét és világos mód között.</li>
+  </ul>
+  
+  <h2 id="futtatas">Futtatás és Telepítés</h2>
+  <p>
+    A f(xit) futtatásához az alábbi környezeti feltételek szükségesek:
+  </p>
+  <ul>
+    <li>Java 8 vagy újabb</li>
+    <li>Kotlin (a kód Kotlin nyelven készült)</li>
+    <li>exp4j könyvtár (a függvények kiértékeléséhez)</li>
+  </ul>
+  <ol>
+    <li>Klónozd a projekt repóját a helyi gépedre.</li>
+    <li>Nyisd meg a projektet az általad választott IDE-ben (pl. IntelliJ IDEA).</li>
+    <li>Győződj meg róla, hogy minden szükséges függőség elérhető.</li>
+    <li>Fordítsd le a kódot, majd futtasd a <code>main()</code> függvényt a <code>MainFrame</code> osztályban.</li>
+  </ol>
+  
+  <h2 id="fejlesztes">Fejlesztési Ötletek és Tanulási Segédlet</h2>
+  <p>
+    A f(xit) nemcsak egy alkalmazás, hanem egy tanulási forrás is a matematikai grafikonok, numerikus számítások és felhasználói felület fejlesztése terén. Néhány javaslat:
+  </p>
+  <ul>
+    <li><strong>Matematikai Függvény Bővítés:</strong> További függvények és operátorok integrálása az exp4j-hoz, mint például hiperbolikus vagy speciális függvények.</li>
+    <li><strong>Jegyzetelési Modul Fejlesztése:</strong> A Markdown jegyzetelés továbbfejleszthető MathJax vagy más LaTeX renderelő integrációjával a teljes matematikai támogatás érdekében.</li>
+    <li><strong>Exportálási Lehetőségek:</strong> Kísérletezz különböző grafikon export formátumokkal (például SVG vagy PDF) a vizualizációk megosztásához.</li>
+    <li><strong>Felhasználói Felület Optimalizálása:</strong> A bal oldali sáv és a vezérlőgombok további csoportosítása, valamint a UI finomhangolása a könnyebb használhatóság érdekében.</li>
+    <li><strong>Kód Dokumentálása:</strong> Mivel a f(xit) tanulási célú, részletes kommentárokkal, példákkal és kódleírásokkal segítse a felhasználókat a forráskód megértésében.</li>
+  </ul>
+  
+</body>
+</html>
