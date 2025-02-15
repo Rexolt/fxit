@@ -45,7 +45,7 @@ data class FunctionData(
     var visible: Boolean = true,
     var showDomain: Boolean = true,
     var expression: Expression? = null,
-    var isPolar: Boolean = false 
+    var isPolar: Boolean = false
 )
 
 
