@@ -2,6 +2,7 @@
 
 package demo.fvprojekt.demo.fvprojekt
 
+import com.formdev.flatlaf.FlatDarkLaf
 import net.objecthunter.exp4j.Expression
 import net.objecthunter.exp4j.ExpressionBuilder
 import net.objecthunter.exp4j.function.Function
@@ -35,7 +36,6 @@ data class GraphSettings(
     var defaultFunctionFormat: String = "f(x)="
 )
 
-
 data class FunctionData(
     var expressionText: String = "x",
     var domainStart: Double = -10.0,
@@ -48,11 +48,26 @@ data class FunctionData(
     var isPolar: Boolean = false
 )
 
-
 data class WorldPoint(val x: Double, val y: Double)
 
-
 data class IntegrationRegion(val expr: Expression, val a: Double, val b: Double, val color: Color)
+
+
+
+class RoundedPanel(private val arc: Int = 20) : JPanel() {
+    init {
+        isOpaque = false
+    }
+    override fun paintComponent(g: Graphics) {
+        val g2 = g.create() as Graphics2D
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        g2.color = background
+        g2.fillRoundRect(0, 0, width, height, arc, arc)
+        g2.dispose()
+        super.paintComponent(g)
+    }
+}
+
 
 
 class EquationEditorDialog(owner: Component, initialText: String) : JDialog(SwingUtilities.getWindowAncestor(owner), "Egyenlet szerkesztő", ModalityType.APPLICATION_MODAL) {
@@ -91,7 +106,6 @@ class EquationEditorDialog(owner: Component, initialText: String) : JDialog(Swin
         setLocationRelativeTo(owner)
     }
 }
-
 
 class CalculatorDialog(owner: Frame?) : JDialog(owner, "Számológép", false) {
     private val display = JTextField()
@@ -142,6 +156,7 @@ class CalculatorDialog(owner: Frame?) : JDialog(owner, "Számológép", false) {
         setLocationRelativeTo(owner)
     }
 }
+
 
 
 class FunctionInputPanel(
@@ -258,6 +273,7 @@ class FunctionInputPanel(
 }
 
 
+
 class GraphPanel : JPanel() {
     var functionList: List<FunctionData> = emptyList()
     var graphSettings: GraphSettings = GraphSettings()
@@ -270,16 +286,12 @@ class GraphPanel : JPanel() {
     private var lastDragX = 0
     private var lastDragY = 0
 
-
     var polygonMode: Boolean = false
     val polygonPoints: MutableList<WorldPoint> = mutableListOf()
 
-
     var integrationRegion: IntegrationRegion? = null
 
-
     var tangentLine: FunctionData? = null
-
 
     var animationParameter: Double = 0.0
     var markerMode: Boolean = false
@@ -294,7 +306,6 @@ class GraphPanel : JPanel() {
                 }
             }
             override fun mouseClicked(e: MouseEvent) {
-
                 if (markerMode) {
                     val centerX = width / 2 + offsetX
                     val centerY = height / 2 + offsetY
@@ -304,7 +315,6 @@ class GraphPanel : JPanel() {
                     repaint()
                     return
                 }
-
                 if (polygonMode) {
                     val centerX = width / 2 + offsetX
                     val centerY = height / 2 + offsetY
@@ -353,7 +363,6 @@ class GraphPanel : JPanel() {
         val centerX = width / 2 + offsetX
         val centerY = height / 2 + offsetY
 
-
         if (graphSettings.showGrid) {
             g2.color = graphSettings.gridColor
             val minGridSpacingPx = 30.0
@@ -376,8 +385,6 @@ class GraphPanel : JPanel() {
                 yGrid += worldStep
             }
         }
-
-
 
         if (graphSettings.showAxis) {
             g2.color = graphSettings.axisColor
@@ -425,8 +432,6 @@ class GraphPanel : JPanel() {
             g2.drawString("y", centerX + 5, 15)
         }
 
-
-
         if (graphSettings.showDomainArea) {
             functionList.forEach { fd ->
                 if (fd.visible && fd.showDomain) {
@@ -445,7 +450,6 @@ class GraphPanel : JPanel() {
                 }
             }
         }
-
 
         integrationRegion?.let { region ->
             val a = region.a
@@ -472,7 +476,6 @@ class GraphPanel : JPanel() {
             g2.fillPolygon(poly)
         }
 
-
         fun prepareExpression(expr: Expression): Expression {
             if (expr.variableNames.contains("t"))
                 expr.setVariable("t", animationParameter)
@@ -487,7 +490,6 @@ class GraphPanel : JPanel() {
                 drawFunction(g2, prepareExpression(expr), fd.domainStart, fd.domainEnd, fd.lineColor, fd.lineStroke, centerX, centerY)
             }
         }
-
 
         if (graphSettings.showZeroPoints) {
             g2.color = Color.MAGENTA
@@ -506,7 +508,6 @@ class GraphPanel : JPanel() {
             }
         }
 
-
         if (graphSettings.showIntersections) {
             g2.color = Color.YELLOW
             intersectionPoints.forEach { (mx, my) ->
@@ -521,7 +522,6 @@ class GraphPanel : JPanel() {
             }
         }
 
-
         tangentLine?.let { tl ->
             val expr = tl.expression ?: return@let
             val origStroke = g2.stroke
@@ -530,7 +530,7 @@ class GraphPanel : JPanel() {
             g2.stroke = origStroke
         }
 
-        // Polygon rajzolása, ha aktív
+
         if (polygonMode && polygonPoints.isNotEmpty()) {
             g2.color = Color.CYAN
             val poly = polygonPoints.map { wp ->
@@ -553,7 +553,6 @@ class GraphPanel : JPanel() {
                 g2.color = Color.CYAN
             }
         }
-
 
         if (markers.isNotEmpty()) {
             g2.color = Color.RED
@@ -596,7 +595,6 @@ class GraphPanel : JPanel() {
         }
     }
 
-    // Polár függvény kirajzolása
     private fun drawPolarFunction(
         g2: Graphics2D,
         expr: Expression,
@@ -628,7 +626,6 @@ class GraphPanel : JPanel() {
             g2.drawLine(p1.x, p1.y, p2.x, p2.y)
         }
     }
-
 
     private fun getNiceGridSpacing(rawStep: Double): Double {
         val exponent = floor(log10(rawStep))
@@ -715,6 +712,7 @@ class GraphPanel : JPanel() {
         return sum
     }
 }
+
 
 
 class NotesPanel : JPanel() {
@@ -872,12 +870,13 @@ class MarkdownNotePanel : JPanel() {
         // Félkövér, dőlt
         html = html.replace(Regex("\\*\\*(.*?)\\*\\*")) { "<b>${it.groupValues[1]}</b>" }
         html = html.replace(Regex("\\*(.*?)\\*")) { "<i>${it.groupValues[1]}</i>" }
-        // Egyszerű LaTeX jelölés ($...$ vagy $$...$$)
+        // Egyszerű LaTeX jelölés
         html = html.replace(Regex("\\$\\$(.*?)\\$\\$")) { "<span class='math'>${it.groupValues[1]}</span>" }
         html = html.replace(Regex("\\$(.*?)\\$")) { "<span class='math'>${it.groupValues[1]}</span>" }
         return "<html><body>$html</body></html>"
     }
 }
+
 
 
 class SettingsDialog(
@@ -1013,7 +1012,8 @@ class SettingsDialog(
     }
 }
 
-/** Főablak */
+
+
 class MainFrame : JFrame("f(xit)") {
 
     private val graphPanel = GraphPanel().apply { preferredSize = Dimension(900, 700) }
@@ -1022,8 +1022,6 @@ class MainFrame : JFrame("f(xit)") {
         background = Color(40, 40, 40)
         border = EmptyBorder(5, 5, 5, 5)
     }
-
-
 
     private var splitPane: JSplitPane = JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
     private val graphSettings = GraphSettings()
@@ -1034,7 +1032,6 @@ class MainFrame : JFrame("f(xit)") {
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
     ).apply { preferredSize = Dimension(380, 700) }
-
 
     private val notesPanel = NotesPanel()
     private val leftTabbedPane = JTabbedPane().apply {
@@ -1066,8 +1063,6 @@ class MainFrame : JFrame("f(xit)") {
     }
 
     private var leftPanelWidth = 380
-
-
 
     private val btnAddFunction = JButton("+").apply {
         font = Font(font.name, Font.BOLD, 20)
@@ -1104,7 +1099,6 @@ class MainFrame : JFrame("f(xit)") {
         foreground = Color.WHITE
         toolTipText = "Poligon rajzolása (dupla kattintás a lezáráshoz)"
     }
-    // Extra funkciók (kevésbé gyakori)
     private val btnIntegrate = JButton("Integrál").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
@@ -1124,7 +1118,6 @@ class MainFrame : JFrame("f(xit)") {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
     }
-    // Gyakrabban használt extra funkciók
     private val btnCalc = JButton("Számol & Rajzol").apply {
         background = Color(100, 100, 100)
         foreground = Color.WHITE
@@ -1168,8 +1161,6 @@ class MainFrame : JFrame("f(xit)") {
         preferredSize = Dimension(380, 80)
     }
 
-
-
     private val functionButtonsPanel = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
         border = TitledBorder("Függvény műveletek")
@@ -1206,16 +1197,12 @@ class MainFrame : JFrame("f(xit)") {
         add(miscButtonsPanel)
     }
 
-
-
     private var animationTimer: Timer? = null
 
     init {
         defaultCloseOperation = EXIT_ON_CLOSE
         layout = BorderLayout()
-        // A JSplitPane a CENTER pozícióba kerül
         add(splitPane, BorderLayout.CENTER)
-
         jMenuBar = menuBar
 
         val leftPanel = JPanel(BorderLayout()).apply {
@@ -1225,14 +1212,9 @@ class MainFrame : JFrame("f(xit)") {
             add(lblResult, BorderLayout.SOUTH)
         }
 
-
         splitPane.leftComponent = leftPanel
-        // Később beállítjuk a dividerLocation-t
         splitPane.dividerLocation = graphSettings.leftPanelWidth
-
-
         splitPane.rightComponent = graphPanel
-
 
         btnAddFunction.addActionListener {
             addFunctionPanel(graphSettings.defaultFunctionFormat + " x", -10.0, 10.0, randomColor(), false)
@@ -1332,7 +1314,6 @@ class MainFrame : JFrame("f(xit)") {
                     val derivative = (fPlus - fMinus) / (2 * h)
                     val fAtX = expr.setVariable("x", x0).evaluate()
                     JOptionPane.showMessageDialog(this, "A derivált értéke: %.4f".format(derivative))
-                    // Tangens vonal: L(x) = f(x0) + f'(x0) * (x - x0)
                     val tangentExprStr = "$fAtX + $derivative*(x - $x0)"
                     val tangentExpr = ExpressionBuilder(tangentExprStr).variable("x").build()
                     val tangentFunction = FunctionData(
@@ -1376,7 +1357,6 @@ class MainFrame : JFrame("f(xit)") {
             graphPanel.repaint()
         }
 
-
         graphPanel.addMouseMotionListener(object : MouseAdapter() {
             override fun mouseMoved(e: MouseEvent) {
                 val centerX = graphPanel.width / 2 + graphPanel.offsetX
@@ -1386,7 +1366,6 @@ class MainFrame : JFrame("f(xit)") {
                 lblCoordinates.text = "x = ${"%.2f".format(x)} , y = ${"%.2f".format(y)}"
             }
         })
-
 
         graphPanel.graphSettings = graphSettings
 
@@ -1706,19 +1685,31 @@ class MainFrame : JFrame("f(xit)") {
     }
 }
 
-fun trySetGlobalLookAndFeel() {
-    try {
-        UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf")
-    } catch (ex: Exception) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
-        } catch (_: Exception) { }
-    }
-}
+
 
 fun main() {
     SwingUtilities.invokeLater {
-        trySetGlobalLookAndFeel()
+        try {
+
+            UIManager.setLookAndFeel(FlatDarkLaf())
+        } catch (ex: Exception) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+            } catch (_: Exception) { }
+        }
+
+        UIManager.put("Button.arc", 20)
+        UIManager.put("Component.arc", 20)
+        UIManager.put("TextComponent.arc", 20)
+        UIManager.put("CheckBox.arc", 20)
+        UIManager.put("ProgressBar.arc", 20)
+        UIManager.put("ScrollBar.thumbArc", 20)
+        UIManager.put("Component.focusWidth", 2)
+        UIManager.put("Button.background", Color(60, 60, 60))
+        UIManager.put("Button.hoverBackground", Color(80, 80, 80))
+        UIManager.put("Button.foreground", Color.WHITE)
+        UIManager.put("Component.focusColor", Color(100, 100, 255))
+
         val frame = MainFrame()
         frame.isVisible = true
     }

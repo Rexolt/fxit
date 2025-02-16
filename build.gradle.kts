@@ -28,6 +28,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     // Példa extra libek:
     implementation("net.objecthunter:exp4j:0.4.8")
+
     implementation("com.formdev:flatlaf:3.1")
 }
 
