@@ -55,9 +55,7 @@ data class IntegrationRegion(val expr: Expression, val a: Double, val b: Double,
 
 
 class RoundedPanel(private val arc: Int = 20) : JPanel() {
-    init {
-        isOpaque = false
-    }
+    init { isOpaque = false }
     override fun paintComponent(g: Graphics) {
         val g2 = g.create() as Graphics2D
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
@@ -65,6 +63,19 @@ class RoundedPanel(private val arc: Int = 20) : JPanel() {
         g2.fillRoundRect(0, 0, width, height, arc, arc)
         g2.dispose()
         super.paintComponent(g)
+    }
+}
+
+
+
+fun loadIcon(path: String, width: Int, height: Int): ImageIcon {
+    val url = object {}.javaClass.getResource(path)
+    return if (url != null) {
+        val original = ImageIcon(url)
+        val scaled = original.image.getScaledInstance(width, height, Image.SCALE_SMOOTH)
+        ImageIcon(scaled)
+    } else {
+        ImageIcon()
     }
 }
 
@@ -140,11 +151,7 @@ class CalculatorDialog(owner: Frame?) : JDialog(owner, "Számológép", false) {
                         }
                     }
                     "C" -> display.text = ""
-                    "←" -> {
-                        if (display.text.isNotEmpty()) {
-                            display.text = display.text.substring(0, display.text.length - 1)
-                        }
-                    }
+                    "←" -> if (display.text.isNotEmpty()) display.text = display.text.substring(0, display.text.length - 1)
                     "sin", "cos", "tan", "log" -> display.text += "$text("
                     else -> display.text += text
                 }
@@ -172,7 +179,6 @@ class FunctionInputPanel(
     val chkDomain = JCheckBox("Domain", true)
     val btnRemove = JButton("✕")
     val btnEquationEditor = JButton("Szerk")
-    // Új: Polar checkbox
     val chkPolar = JCheckBox("Polar", false)
 
     init {
@@ -182,7 +188,7 @@ class FunctionInputPanel(
             insets = Insets(3, 3, 3, 3)
             fill = GridBagConstraints.HORIZONTAL
         }
-        // 1. Sor: Expression + egyenlet szerkesztő gomb
+        // 1. Sor: Expression + szerkesztő gomb
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 1
         add(JLabel("f(x) =").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 0; gbc.gridwidth = 4
@@ -201,7 +207,7 @@ class FunctionInputPanel(
                 txtExpression.text = newExpr
             }
         }
-        // 2. Sor: Domain
+
         gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 1
         add(JLabel("Domain: [").apply { foreground = Color.WHITE }, gbc)
         gbc.gridx = 1; gbc.gridy = 1; gbc.gridwidth = 1
@@ -226,7 +232,7 @@ class FunctionInputPanel(
         gbc.gridx = 2
         spnLineWidth.preferredSize = Dimension(60, 22)
         add(spnLineWidth, gbc)
-        // 4. Sor: CheckBox-ok és törlés gomb
+        // 4. Sor: CheckBox-ok és törlés
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 1
         chkVisible.background = background
         chkVisible.foreground = Color.WHITE
@@ -236,7 +242,6 @@ class FunctionInputPanel(
         chkDomain.foreground = Color.WHITE
         add(chkDomain, gbc)
         gbc.gridx = 2
-        // Új: Polar checkbox hozzáadása
         chkPolar.background = background
         chkPolar.foreground = Color.WHITE
         add(chkPolar, gbc)
@@ -288,11 +293,8 @@ class GraphPanel : JPanel() {
 
     var polygonMode: Boolean = false
     val polygonPoints: MutableList<WorldPoint> = mutableListOf()
-
     var integrationRegion: IntegrationRegion? = null
-
     var tangentLine: FunctionData? = null
-
     var animationParameter: Double = 0.0
     var markerMode: Boolean = false
     val markers: MutableList<WorldPoint> = mutableListOf()
@@ -359,7 +361,6 @@ class GraphPanel : JPanel() {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
         g2.color = graphSettings.backgroundColor
         g2.fillRect(0, 0, width, height)
-
         val centerX = width / 2 + offsetX
         val centerY = height / 2 + offsetY
 
@@ -529,7 +530,6 @@ class GraphPanel : JPanel() {
             drawFunction(g2, expr, tl.domainStart, tl.domainEnd, tl.lineColor, tl.lineStroke, centerX, centerY)
             g2.stroke = origStroke
         }
-
 
         if (polygonMode && polygonPoints.isNotEmpty()) {
             g2.color = Color.CYAN
@@ -863,14 +863,11 @@ class MarkdownNotePanel : JPanel() {
 
     private fun markdownToHtml(md: String): String {
         var html = md
-        // Címsorok
         html = html.replace(Regex("^# (.*)$", RegexOption.MULTILINE)) { "<h1>${it.groupValues[1]}</h1>" }
         html = html.replace(Regex("^## (.*)$", RegexOption.MULTILINE)) { "<h2>${it.groupValues[1]}</h2>" }
         html = html.replace(Regex("^### (.*)$", RegexOption.MULTILINE)) { "<h3>${it.groupValues[1]}</h3>" }
-        // Félkövér, dőlt
         html = html.replace(Regex("\\*\\*(.*?)\\*\\*")) { "<b>${it.groupValues[1]}</b>" }
         html = html.replace(Regex("\\*(.*?)\\*")) { "<i>${it.groupValues[1]}</i>" }
-        // Egyszerű LaTeX jelölés
         html = html.replace(Regex("\\$\\$(.*?)\\$\\$")) { "<span class='math'>${it.groupValues[1]}</span>" }
         html = html.replace(Regex("\\$(.*?)\\$")) { "<span class='math'>${it.groupValues[1]}</span>" }
         return "<html><body>$html</body></html>"
@@ -1022,17 +1019,14 @@ class MainFrame : JFrame("f(xit)") {
         background = Color(40, 40, 40)
         border = EmptyBorder(5, 5, 5, 5)
     }
-
     private var splitPane: JSplitPane = JSplitPane(JSplitPane.HORIZONTAL_SPLIT)
     private val graphSettings = GraphSettings()
     private val lblCoordinates = JLabel(" ")
-
     private val scrollPane = JScrollPane(
         fvContainer,
         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
     ).apply { preferredSize = Dimension(380, 700) }
-
     private val notesPanel = NotesPanel()
     private val leftTabbedPane = JTabbedPane().apply {
         addTab("Függvények", JPanel(BorderLayout()).apply {
@@ -1061,18 +1055,20 @@ class MainFrame : JFrame("f(xit)") {
             font = Font("Monospaced", Font.PLAIN, 12)
         }).also { it.border = TitledBorder("Magyarázat") })
     }
-
     private var leftPanelWidth = 380
+
 
     private val btnAddFunction = JButton("+").apply {
         font = Font(font.name, Font.BOLD, 20)
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Új függvény hozzáadása"
+        icon = loadIcon("/icons/plus.png", 16, 16)
     }
     private val btnClearFunctions = JButton("Függvények törlése").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
+        icon = loadIcon("/icons/clear.png", 16, 16)
     }
     private val btnZoomIn = JButton("Zoom In").apply {
         background = Color(80, 80, 80)
@@ -1103,20 +1099,24 @@ class MainFrame : JFrame("f(xit)") {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Integrál számítása és árnyékolása"
+        icon = loadIcon("/icons/integrate.png", 16, 16)
     }
     private val btnCalculator = JButton("Számológép").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Nyisd meg a számológépet"
+        icon = loadIcon("/icons/calculator.png", 16, 16)
     }
     private val btnDerivative = JButton("Derivált").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Derivált számítása és tangentvonal kirajzolása"
+        icon = loadIcon("/icons/derivative.png", 16, 16)
     }
     private val btnSettings = JButton("Beállítások").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
+        icon = loadIcon("/icons/settings.png", 16, 16)
     }
     private val btnCalc = JButton("Számol & Rajzol").apply {
         background = Color(100, 100, 100)
@@ -1127,16 +1127,19 @@ class MainFrame : JFrame("f(xit)") {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Marker eszköz: kattints a grafikonra a pontok hozzáadásához"
+        icon = loadIcon("/icons/marker.png", 16, 16)
     }
     private val btnAnimate = JButton("Animate").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Animálás: indítsd el vagy állítsd le az automatikus animációt"
+        icon = loadIcon("/icons/animate.png", 16, 16)
     }
     private val btnClearMarkers = JButton("Clear Markers").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Töröld az összes marker pontot"
+        icon = loadIcon("/icons/clear_markers.png", 16, 16)
     }
 
     private val menuBar = JMenuBar().apply {
@@ -1690,14 +1693,12 @@ class MainFrame : JFrame("f(xit)") {
 fun main() {
     SwingUtilities.invokeLater {
         try {
-
             UIManager.setLookAndFeel(FlatDarkLaf())
         } catch (ex: Exception) {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
             } catch (_: Exception) { }
         }
-
         UIManager.put("Button.arc", 20)
         UIManager.put("Component.arc", 20)
         UIManager.put("TextComponent.arc", 20)
@@ -1711,6 +1712,15 @@ fun main() {
         UIManager.put("Component.focusColor", Color(100, 100, 255))
 
         val frame = MainFrame()
+
+
+        try {
+            val appIcon: Image = ImageIO.read(object {}.javaClass.getResource("/icons/app-icon.png"))
+            frame.iconImage = appIcon
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+
         frame.isVisible = true
     }
 }
