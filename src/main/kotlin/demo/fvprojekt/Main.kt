@@ -52,8 +52,6 @@ data class WorldPoint(val x: Double, val y: Double)
 
 data class IntegrationRegion(val expr: Expression, val a: Double, val b: Double, val color: Color)
 
-
-
 class RoundedPanel(private val arc: Int = 20) : JPanel() {
     init { isOpaque = false }
     override fun paintComponent(g: Graphics) {
@@ -66,8 +64,6 @@ class RoundedPanel(private val arc: Int = 20) : JPanel() {
     }
 }
 
-
-
 fun loadIcon(path: String, width: Int, height: Int): ImageIcon {
     val url = object {}.javaClass.getResource(path)
     return if (url != null) {
@@ -78,8 +74,6 @@ fun loadIcon(path: String, width: Int, height: Int): ImageIcon {
         ImageIcon()
     }
 }
-
-
 
 class EquationEditorDialog(owner: Component, initialText: String) : JDialog(SwingUtilities.getWindowAncestor(owner), "Egyenlet szerkesztő", ModalityType.APPLICATION_MODAL) {
     private val txtEquation = JTextField(initialText, 25)
@@ -163,8 +157,6 @@ class CalculatorDialog(owner: Frame?) : JDialog(owner, "Számológép", false) {
         setLocationRelativeTo(owner)
     }
 }
-
-
 
 class FunctionInputPanel(
     val onRemove: (panel: FunctionInputPanel) -> Unit
@@ -276,8 +268,6 @@ class FunctionInputPanel(
         )
     }
 }
-
-
 
 class GraphPanel : JPanel() {
     var functionList: List<FunctionData> = emptyList()
@@ -713,8 +703,6 @@ class GraphPanel : JPanel() {
     }
 }
 
-
-
 class NotesPanel : JPanel() {
     private val modeCombo = JComboBox(arrayOf("Plain", "Markdown"))
     private val cardPanel = JPanel(CardLayout())
@@ -874,8 +862,6 @@ class MarkdownNotePanel : JPanel() {
     }
 }
 
-
-
 class SettingsDialog(
     owner: Frame?,
     private val settings: GraphSettings,
@@ -1009,7 +995,278 @@ class SettingsDialog(
     }
 }
 
+class AnalysisDialog(
+    owner: Frame,
+    private val functions: List<FunctionData>,
+    private val onAddFunction: (FunctionData) -> Unit
+) : JDialog(owner, "Függvény analízis", true) {
 
+    private val functionCombo = JComboBox(functions.map { it.expressionText }.toTypedArray())
+    private val analysisTypeCombo = JComboBox(arrayOf(
+        "Lokális szélsőértékek",
+        "Határérték",
+        "Taylor-sor közelítés",
+        "Monotonitás és konvexitás"
+    ))
+    private val optionsPanel = JPanel(CardLayout())
+
+
+    private val limitPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+        add(JLabel("x érték:"))
+        add(JTextField("0", 8).also { tf -> limitXField = tf })
+    }
+    private var limitXField: JTextField? = null
+
+
+    private val taylorPanel = JPanel(FlowLayout(FlowLayout.LEFT)).apply {
+        add(JLabel("Középpont (a):"))
+        add(JTextField("0", 8).also { tf -> taylorCenterField = tf })
+        add(JLabel("Rend:"))
+        add(JTextField("3", 4).also { tf -> taylorOrderField = tf })
+        add(JCheckBox("Plot Taylor sor").also { cb -> taylorPlotCheck = cb })
+    }
+    private var taylorCenterField: JTextField? = null
+    private var taylorOrderField: JTextField? = null
+    private var taylorPlotCheck: JCheckBox? = null
+
+
+    private val emptyPanel = JPanel()
+
+    init {
+        layout = BorderLayout(5,5)
+        val topPanel = JPanel(FlowLayout(FlowLayout.LEFT))
+        topPanel.add(JLabel("Függvény:"))
+        topPanel.add(functionCombo)
+        topPanel.add(JLabel("Analízis típus:"))
+        topPanel.add(analysisTypeCombo)
+        add(topPanel, BorderLayout.NORTH)
+
+
+        optionsPanel.layout = CardLayout()
+        optionsPanel.add(emptyPanel, "Lokális szélsőértékek")
+        optionsPanel.add(limitPanel, "Határérték")
+        optionsPanel.add(taylorPanel, "Taylor-sor közelítés")
+        optionsPanel.add(emptyPanel, "Monotonitás és konvexitás")
+        add(optionsPanel, BorderLayout.CENTER)
+
+
+        analysisTypeCombo.addActionListener {
+            val card = analysisTypeCombo.selectedItem as String
+            (optionsPanel.layout as CardLayout).show(optionsPanel, card)
+        }
+
+        val btnPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
+        val btnOk = JButton("Számol")
+        val btnCancel = JButton("Mégse")
+        btnPanel.add(btnOk)
+        btnPanel.add(btnCancel)
+        add(btnPanel, BorderLayout.SOUTH)
+
+        btnOk.addActionListener { performAnalysis() }
+        btnCancel.addActionListener { dispose() }
+
+        pack()
+        setLocationRelativeTo(owner)
+    }
+
+    fun getConvexityIntervals(expr: Expression, start: Double, end: Double, step: Double): Pair<List<Pair<Double, Double>>, List<Pair<Double, Double>>> {
+        val convex = mutableListOf<Pair<Double, Double>>()
+        val concave = mutableListOf<Pair<Double, Double>>()
+        var currentType: String? = null
+        var intervalStart = start
+        var x = start
+        while (x <= end - step) {
+            val f1 = expr.setVariable("x", x - step).evaluate()
+            val f2 = expr.setVariable("x", x).evaluate()
+            val f3 = expr.setVariable("x", x + step).evaluate()
+            val secondDerivative = (f3 - 2 * f2 + f1) / (step * step)
+            val type = if (secondDerivative >= 0) "convex" else "concave"
+            if (currentType == null) {
+                currentType = type
+            } else if (type != currentType) {
+                if (currentType == "convex") convex.add(Pair(intervalStart, x)) else concave.add(Pair(intervalStart, x))
+                intervalStart = x
+                currentType = type
+            }
+            x += step
+        }
+        if (currentType == "convex") convex.add(Pair(intervalStart, end)) else if (currentType == "concave") concave.add(Pair(intervalStart, end))
+        return Pair(convex, concave)
+    }
+
+    fun findLocalExtrema(expr: Expression, start: Double, end: Double, step: Double): Pair<List<Pair<Double, Double>>, List<Pair<Double, Double>>> {
+        val minima = mutableListOf<Pair<Double, Double>>()
+        val maxima = mutableListOf<Pair<Double, Double>>()
+        var x = start + step
+        while (x <= end - step) {
+            val fLeft = expr.setVariable("x", x - step).evaluate()
+            val fCenter = expr.setVariable("x", x).evaluate()
+            val fRight = expr.setVariable("x", x + step).evaluate()
+            val d1 = (fCenter - fLeft) / step
+            val d2 = (fRight - fCenter) / step
+            if (d1 < 0 && d2 > 0) {
+                minima.add(Pair(x, fCenter))
+            } else if (d1 > 0 && d2 < 0) {
+                maxima.add(Pair(x, fCenter))
+            }
+            x += step
+        }
+        return Pair(minima, maxima)
+    }
+
+    fun computeNthDerivative(expr: Expression, a: Double, n: Int, h: Double = 1e-5): Double {
+        if (n == 0) return expr.setVariable("x", a).evaluate()
+        return (computeNthDerivative(expr, a + h, n - 1, h) - computeNthDerivative(expr, a - h, n - 1, h)) / (2 * h)
+    }
+
+    fun computeLimit(expr: Expression, x0: Double, h: Double = 1e-5): Pair<Double, Double> {
+        val left = expr.setVariable("x", x0 - h).evaluate()
+        val right = expr.setVariable("x", x0 + h).evaluate()
+        return Pair(left, right)
+    }
+
+    fun getMonotonicityIntervals(expr: Expression, start: Double, end: Double, step: Double): Pair<List<Pair<Double, Double>>, List<Pair<Double, Double>>> {
+        val increasing = mutableListOf<Pair<Double, Double>>()
+        val decreasing = mutableListOf<Pair<Double, Double>>()
+        var currentType: String? = null
+        var intervalStart = start
+        var x = start
+        while (x <= end - step) {
+            val f1 = expr.setVariable("x", x).evaluate()
+            val f2 = expr.setVariable("x", x + step).evaluate()
+            val derivative = (f2 - f1) / step
+            val type = if (derivative >= 0) "inc" else "dec"
+            if (currentType == null) {
+                currentType = type
+            } else if (type != currentType) {
+                if (currentType == "inc") increasing.add(Pair(intervalStart, x)) else decreasing.add(Pair(intervalStart, x))
+                intervalStart = x
+                currentType = type
+            }
+            x += step
+        }
+        if (currentType == "inc") increasing.add(Pair(intervalStart, end)) else if (currentType == "dec") decreasing.add(Pair(intervalStart, end))
+        return Pair(increasing, decreasing)
+    }
+
+    private fun performAnalysis() {
+        val selectedFunction = functions[functionCombo.selectedIndex]
+        val expr = selectedFunction.expression ?: run {
+            JOptionPane.showMessageDialog(this, "Érvénytelen függvény.", "Hiba", JOptionPane.ERROR_MESSAGE)
+            return
+        }
+        val type = analysisTypeCombo.selectedItem as String
+        when (type) {
+            "Lokális szélsőértékek" -> {
+
+                val (minima, maxima) = findLocalExtrema(expr, selectedFunction.domainStart, selectedFunction.domainEnd, 0.001)
+                val sb = StringBuilder("<html><b>Lokális szélsőértékek:</b><br>")
+                if (minima.isEmpty() && maxima.isEmpty())
+                    sb.append("Nem található lokális szélsőérték.")
+                else {
+                    if (minima.isNotEmpty()) {
+                        sb.append("<u>Minimumok:</u><br>")
+                        minima.forEach { (x, y) ->
+                            sb.append("x=%.4f, y=%.4f<br>".format(x, y))
+                        }
+                    }
+                    if (maxima.isNotEmpty()) {
+                        sb.append("<u>Maximumok:</u><br>")
+                        maxima.forEach { (x, y) ->
+                            sb.append("x=%.4f, y=%.4f<br>".format(x, y))
+                        }
+                    }
+                }
+                sb.append("</html>")
+                JOptionPane.showMessageDialog(this, sb.toString(), "Lokális szélsőértékek", JOptionPane.INFORMATION_MESSAGE)
+            }
+            "Határérték" -> {
+                val xStr = limitXField?.text ?: "0"
+                val x0 = xStr.toDoubleOrNull() ?: 0.0
+                val (left, right) = computeLimit(expr, x0)
+                val sb = StringBuilder("<html><b>Határérték számítás:</b><br>")
+                sb.append("Bal oldali határ: %.6f<br>".format(left))
+                sb.append("Jobb oldali határ: %.6f<br>".format(right))
+                if (abs(left - right) < 1e-6)
+                    sb.append("A függvény határértéke: %.6f".format(left))
+                else
+                    sb.append("A kétoldali határértékek eltérnek.")
+                sb.append("</html>")
+                JOptionPane.showMessageDialog(this, sb.toString(), "Határérték", JOptionPane.INFORMATION_MESSAGE)
+            }
+            "Taylor-sor közelítés" -> {
+                val aStr = taylorCenterField?.text ?: "0"
+                val orderStr = taylorOrderField?.text ?: "3"
+                val a = aStr.toDoubleOrNull() ?: 0.0
+                val order = orderStr.toIntOrNull() ?: 3
+                val coefficients = mutableListOf<Double>()
+                for (k in 0..order) {
+                    val deriv = computeNthDerivative(expr, a, k)
+                    coefficients.add(deriv / factorial(k))
+                }
+
+                val polyStr = coefficients.mapIndexed { index, coeff ->
+                    when (index) {
+                        0 -> "%.6f".format(coeff)
+                        else -> {
+                            val term = if (a == 0.0) "(x)^$index" else "(x-%.4f)^$index".format(a)
+                            "%.6f*%s".format(coeff, term)
+                        }
+                    }
+                }.joinToString(" + ")
+                val sb = StringBuilder("<html><b>Taylor-sor közelítés (rend=$order, a=%.4f):</b><br>".format(a))
+                sb.append(polyStr)
+                sb.append("</html>")
+                JOptionPane.showMessageDialog(this, sb.toString(), "Taylor-sor közelítés", JOptionPane.INFORMATION_MESSAGE)
+
+                if (taylorPlotCheck?.isSelected == true) {
+                    val taylorFunction = FunctionData(
+                        expressionText = polyStr,
+                        domainStart = selectedFunction.domainStart,
+                        domainEnd = selectedFunction.domainEnd,
+                        lineColor = Color.MAGENTA,
+                        lineStroke = 2f,
+                        visible = true,
+                        showDomain = false,
+                        isPolar = false,
+                        expression = ExpressionBuilder(polyStr).variable("x").build()
+                    )
+                    onAddFunction(taylorFunction)
+                }
+            }
+            "Monotonitás és konvexitás" -> {
+                val (incr, decr) = getMonotonicityIntervals(expr, selectedFunction.domainStart, selectedFunction.domainEnd, 0.01)
+                val (convex, concave) = getConvexityIntervals(expr, selectedFunction.domainStart, selectedFunction.domainEnd, 0.01)
+                val sb = StringBuilder("<html><b>Monotonitás:</b><br>")
+                if (incr.isNotEmpty()) {
+                    sb.append("Növekvő: ")
+                    incr.forEach { (s, e) -> sb.append("[%.4f, %.4f] ".format(s, e)) }
+                    sb.append("<br>")
+                }
+                if (decr.isNotEmpty()) {
+                    sb.append("Csökkenő: ")
+                    decr.forEach { (s, e) -> sb.append("[%.4f, %.4f] ".format(s, e)) }
+                    sb.append("<br>")
+                }
+                sb.append("<b>Konvexitás:</b><br>")
+                if (convex.isNotEmpty()) {
+                    sb.append("Konvex: ")
+                    convex.forEach { (s, e) -> sb.append("[%.4f, %.4f] ".format(s, e)) }
+                    sb.append("<br>")
+                }
+                if (concave.isNotEmpty()) {
+                    sb.append("Konkáv: ")
+                    concave.forEach { (s, e) -> sb.append("[%.4f, %.4f] ".format(s, e)) }
+                    sb.append("<br>")
+                }
+                sb.append("</html>")
+                JOptionPane.showMessageDialog(this, sb.toString(), "Monotonitás és konvexitás", JOptionPane.INFORMATION_MESSAGE)
+            }
+        }
+    }
+
+    private fun factorial(n: Int): Double = if(n <= 1) 1.0 else (2..n).fold(1.0) { acc, i -> acc * i }
+}
 
 class MainFrame : JFrame("f(xit)") {
 
@@ -1043,7 +1300,7 @@ class MainFrame : JFrame("f(xit)") {
             4. A "Számol & Rajzol" gombbal a függvény kirajzolódik,
                zérushelyek és metszéspontok meghatározása is megtörténik.
             5. Panninggal, zoomolással navigálhatsz.
-            6. Az integrál, derivált, számológép funkciók segítségével extra műveletek végezhetők.
+            6. Az integrál, derivált, számológép és analízis funkciók segítségével extra műveletek végezhetők.
             7. A "Polygon Tool" gombgal poligon adatok is lekérhetők.
             8. Az "Animate" gomb segítségével a függvényekben szereplő "t" paraméter értéke változtatható.
             9. A "Marker Tool" lehetővé teszi, hogy a grafikonra kattintva jelölőpontokat helyezz el, melyeket a "Clear Markers" gomb töröl.
@@ -1056,7 +1313,6 @@ class MainFrame : JFrame("f(xit)") {
         }).also { it.border = TitledBorder("Magyarázat") })
     }
     private var leftPanelWidth = 380
-
 
     private val btnAddFunction = JButton("+").apply {
         font = Font(font.name, Font.BOLD, 20)
@@ -1142,6 +1398,13 @@ class MainFrame : JFrame("f(xit)") {
         icon = loadIcon("/icons/clear_markers.png", 16, 16)
     }
 
+    private val btnAnalysis = JButton("Analízis").apply {
+        background = Color(80, 80, 80)
+        foreground = Color.WHITE
+        toolTipText = "Függvény analízis: lokális szélsőértékek, határérték, Taylor-sor, monotonitás és konvexitás"
+        icon = loadIcon("/icons/analysis.png", 16, 16)
+    }
+
     private val menuBar = JMenuBar().apply {
         val fileMenu = JMenu("File")
         val miExportPNG = JMenuItem("Export PNG")
@@ -1190,6 +1453,7 @@ class MainFrame : JFrame("f(xit)") {
         add(btnAnimate)
         add(btnMarkerTool)
         add(btnClearMarkers)
+        add(btnAnalysis) // Új gomb hozzáadva
     }
     private val topPanel = JPanel().apply {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
@@ -1335,6 +1599,19 @@ class MainFrame : JFrame("f(xit)") {
                     JOptionPane.showMessageDialog(this, "Hiba: ${ex.message}", "Hiba", JOptionPane.ERROR_MESSAGE)
                 }
             }
+        }
+
+
+        btnAnalysis.addActionListener {
+            val visibleFunctions = graphPanel.functionList.filter { it.visible && it.expression != null }
+            if (visibleFunctions.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Nincs megjeleníthető függvény az analízishez.", "Hiba", JOptionPane.ERROR_MESSAGE)
+                return@addActionListener
+            }
+            AnalysisDialog(this, visibleFunctions) { newFunctionData ->
+                addFunctionPanel(newFunctionData.expressionText, newFunctionData.domainStart, newFunctionData.domainEnd, newFunctionData.lineColor, newFunctionData.isPolar)
+                doCalculate()
+            }.isVisible = true
         }
 
         btnAnimate.addActionListener {
@@ -1581,6 +1858,8 @@ class MainFrame : JFrame("f(xit)") {
         }
     }
 
+
+
     private fun markersToString(): String {
         val sb = StringBuilder()
         sb.appendLine(graphPanel.markers.size.toString())
@@ -1647,6 +1926,18 @@ class MainFrame : JFrame("f(xit)") {
         return sum * h
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
     companion object {
         val globalFunctions = listOf(
             object : Function("abs", 1) {
@@ -1688,8 +1979,6 @@ class MainFrame : JFrame("f(xit)") {
     }
 }
 
-
-
 fun main() {
     SwingUtilities.invokeLater {
         try {
@@ -1712,7 +2001,6 @@ fun main() {
         UIManager.put("Component.focusColor", Color(100, 100, 255))
 
         val frame = MainFrame()
-
 
         try {
             val appIcon: Image = ImageIO.read(object {}.javaClass.getResource("/icons/app-icon.png"))

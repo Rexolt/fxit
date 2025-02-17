@@ -1,43 +1,41 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    // Kotlin plugin
+    // Kotlin plugin a JVM-hez
     kotlin("jvm") version "1.9.10"
-    // Alkalmazás plugin
+
+    // Alkalmazás plugin – futtatható jar létrehozásához
     application
-    // Jlink plugin (natív csomag, jpackage)
-    id("org.beryx.jlink") version "2.26.0" // vagy a legfrissebb, ha más elérhető
 
-    // Shadow plugin (fat JAR)
-    id("com.github.johnrengelman.shadow") version "8.1.1" // vagy a legfrissebb
+    // Beryx JLink plugin – ha natív telepítőt vagy minimalizált Java runtime-ot akarsz
+    id("org.beryx.jlink") version "2.26.0"
 
-
-
-
+    // Shadow plugin – „fat JAR” létrehozásához
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "demo.fvprojekt"
 version = "1.0"
 
 repositories {
-    // Függőségek letöltése
     mavenCentral()
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    // Példa extra libek:
+
+    // Példa: exp4j a függvények kiértékeléséhez
     implementation("net.objecthunter:exp4j:0.4.8")
 
+    // Példa: FlatLaf a GUI témákhoz
     implementation("com.formdev:flatlaf:3.1")
 }
 
 application {
-    // Ha nincs csomagnév, a Main.kt a src/main/kotlin-ben van "top-level" main() függvénnyel
-    // => a mainClass "MainKt" lesz
-    mainClass.set("MainKt")
+    // A 'package demo.fvprojekt.demo.fvprojekt' miatt:
+    // A top-level main függvény a "demo.fvprojekt.demo.fvprojekt.MainKt" osztályba fordul
+    mainClass.set("demo.fvprojekt.demo.fvprojekt.MainKt")
 }
-
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions {
@@ -51,28 +49,34 @@ java {
     }
 }
 
-
-
-
-// Shadow plugin testreszabás - fat JAR
+// Shadow plugin – „fat JAR” beállítás
 tasks.named<ShadowJar>("shadowJar") {
     archiveClassifier.set("all")
+    // MANIFEST-beállítás, hogy a futtatható jar-ban is megtalálja a main függvényt
+    manifest {
+        attributes["Main-Class"] = "demo.fvprojekt.demo.fvprojekt.MainKt"
+    }
 }
 
-// Jlink plugin - jpackage beállítás
+// Beryx JLink plugin – ha minimalizált Java runtime-ot és natív telepítőt szeretnél
 jlink {
-    // Minimális Java runtime kép
+    // Ha NINCS module-info.java, a plugin egy „merged” modult készít
+    mergedModuleName = "fuvgeny.merged"
+
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
+
     launcher {
-        // A generált futtatható bináris neve
         name = "FuvSzam"
     }
-    // Az image mappa
+
+    // imageDir – hova tegye a minimalizált runtime image-et (opcionális)
     imageDir.set(layout.buildDirectory.dir("image"))
-    // Ha natív telepítőt szeretnél (deb, exe, msi, dmg, pkg, stb.)
+
+    // Ha natív telepítőt is akarsz, pl. Linux .deb:
+    // Windows-on "exe", macOS-en "pkg" vagy "dmg" stb.
     jpackage {
-        // Példa: Linux deb
-        installerType = "deb"
-        installerOptions.addAll(listOf("--linux-shortcut"))
+        installerType = "exe"  // Linuxon .deb, Windows-on "exe"
+        // Telepítő paraméterek (Linuxon pl. "--linux-shortcut")
+        //installerOptions.addAll(listOf("--linux-shortcut"))
     }
 }
