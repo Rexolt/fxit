@@ -1314,7 +1314,7 @@ class MainFrame : JFrame("f(xit)") {
     }
     private var leftPanelWidth = 380
 
-    private val btnAddFunction = JButton("+").apply {
+    private val btnAddFunction = JButton().apply {
         font = Font(font.name, Font.BOLD, 20)
         background = Color(80, 80, 80)
         foreground = Color.WHITE
@@ -1326,30 +1326,40 @@ class MainFrame : JFrame("f(xit)") {
         foreground = Color.WHITE
         icon = loadIcon("/icons/clear.png", 16, 16)
     }
+
+
+
     private val btnZoomIn = JButton("Zoom In").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Nagyítás"
+        icon = loadIcon("/icons/zoom_in.png",16, 16)
     }
     private val btnZoomOut = JButton("Zoom Out").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Kicsinyítés"
+        icon = loadIcon("/icons/zoom_out.png",16, 16)
     }
+
+
     private val btnResetView = JButton("Visszaállítás").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Alap nézet visszaállítása"
+        icon = loadIcon("/icons/reset.png",16, 16)
     }
     private val btnZoomToFit = JButton("Zoom to Fit").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Nézet igazítása"
+        icon = loadIcon("/icons/ztf.png",16, 16)
     }
     private val btnPolygonTool = JToggleButton("Polygon Tool").apply {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Poligon rajzolása (dupla kattintás a lezáráshoz)"
+        icon = loadIcon("/icons/poly.png",16, 16)
     }
     private val btnIntegrate = JButton("Integrál").apply {
         background = Color(80, 80, 80)
@@ -1402,7 +1412,7 @@ class MainFrame : JFrame("f(xit)") {
         background = Color(80, 80, 80)
         foreground = Color.WHITE
         toolTipText = "Függvény analízis: lokális szélsőértékek, határérték, Taylor-sor, monotonitás és konvexitás"
-        icon = loadIcon("/icons/analysis.png", 16, 16)
+        icon = loadIcon("/icons/Anal_iz.png", 16, 16)
     }
 
     private val menuBar = JMenuBar().apply {

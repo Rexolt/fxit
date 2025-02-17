@@ -11,10 +11,14 @@
             "id": "924026d7b35eba52",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Deriválás és Integrálás.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "Deriválás és Integrálás"
             }
           }
         ]
