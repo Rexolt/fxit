@@ -1,0 +1,196 @@
+{
+  "main": {
+    "id": "0dada138a590673a",
+    "type": "split",
+    "children": [
+      {
+        "id": "d4b212d3d23b10c3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "924026d7b35eba52",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Bevezetés!.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Bevezetés!"
+            }
+          }
+        ]
+      },
+      {
+        "id": "c2c89b4e0de2d157",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b49a089b94381da6",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "c17c0070df7c0b3e",
+    "type": "split",
+    "children": [
+      {
+        "id": "7b0017c509aca976",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bcf4dde9f9f49028",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "bf7e39e3553c3c0b",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "ae23f835e489f5af",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "f4d5e3c8b21fa713",
+    "type": "split",
+    "children": [
+      {
+        "id": "436c77009c4e00d7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8e2094deb6df785c",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Bevezetés!.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Bevezetés!"
+            }
+          },
+          {
+            "id": "b8b9ed8862311277",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Bevezetés!.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Bevezetés!"
+            }
+          },
+          {
+            "id": "1fe07ad7702805a5",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "9bdb668f36c36a04",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Bevezetés!.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Bevezetés!"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "b49a089b94381da6",
+  "lastOpenFiles": [
+    "Bevezetés!.md",
+    "Sorfejtések, Taylor-sorok és Fourier-sorok.md",
+    "Differenciálegyenletek.md",
+    "Görbék Elemzése és Optimalizáció.md",
+    "Deriválás és Integrálás.md",
+    "Deriválás.md"
+  ]
+}
