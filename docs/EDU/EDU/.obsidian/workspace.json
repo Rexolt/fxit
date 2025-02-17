@@ -11,14 +11,10 @@
             "id": "924026d7b35eba52",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Bevezetés!.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Bevezetés!"
+              "title": "New tab"
             }
           }
         ]
@@ -184,12 +180,12 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "b49a089b94381da6",
+  "active": "924026d7b35eba52",
   "lastOpenFiles": [
     "Bevezetés!.md",
     "Sorfejtések, Taylor-sorok és Fourier-sorok.md",
-    "Differenciálegyenletek.md",
     "Görbék Elemzése és Optimalizáció.md",
+    "Differenciálegyenletek.md",
     "Deriválás és Integrálás.md",
     "Deriválás.md"
   ]
