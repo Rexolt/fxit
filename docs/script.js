@@ -1,0 +1,1133 @@
+"use strict";
+
+
+alert("❗️❗️❗️FIGYELEM❗️❗️❗️ Az oldal jellenleg tesztfázisban fut. Az oldalon rengeteg hiba található. Csak saját felelőségre használd! Ha hibákat észlelsz akkor Nyissál jegyet a Projekt GitHub issues oldalán! Köszönjük!☺️");
+
+class GraphSettings {
+  constructor() {
+    this.backgroundColor = "#1e1e1e"; 
+    this.gridColor = "#3c3c3c";
+    this.axisColor = "#ffffff";
+    this.showGrid = true;
+    this.showAxis = true;
+    this.showDomainArea = true;
+    this.showZeroPoints = true;
+    this.showIntersections = true;
+    this.pointSize = 8;
+    this.domainAlpha = 0.1;
+    this.stepForNumericalSearch = 0.01;
+    this.invertColors = false;
+    this.leftPanelWidth = 380;
+    this.defaultFunctionFormat = "f(x)=";
+  }
+}
+
+
+class FunctionData {
+  constructor() {
+    this.expressionText = "x";
+    this.domainStart = -10;
+    this.domainEnd = 10;
+    this.lineColor = "#ffa500"; 
+    this.lineStroke = 2;
+    this.visible = true;
+    this.showDomain = true;
+    this.expression = null; 
+    this.isPolar = false;
+  }
+}
+
+
+class WorldPoint {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
+
+class IntegrationRegion {
+  constructor(expr, a, b, color) {
+    this.expr = expr;   
+    this.a = a;
+    this.b = b;
+    this.color = color;
+} }
+
+
+
+function createFunction(expr) {
+  try {
+    const f = new Function("x", "with(Math){ return " + expr + "; }");
+    return function(x) {
+      return f(x);
+    };
+  } catch (e) {
+    console.error("Hiba a függvény létrehozása közben:", e);
+    return null;
+  }
+}
+
+
+function hexToRgb(hex) {
+  hex = hex.replace(/^#/, '');
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return { r, g, b };
+}
+
+
+function getNiceGridSpacing(rawStep) {
+  const exponent = Math.floor(Math.log10(rawStep));
+  const fraction = rawStep / Math.pow(10, exponent);
+  let niceFraction;
+  if (fraction < 1.5) niceFraction = 1;
+  else if (fraction < 3) niceFraction = 2;
+  else if (fraction < 7) niceFraction = 5;
+  else niceFraction = 10;
+  return niceFraction * Math.pow(10, exponent);
+}
+
+
+
+class GraphPanel {
+  constructor(plotDiv) {
+   
+    this.plotDiv = plotDiv;
+
+    this.functionList = [];       
+    this.graphSettings = new GraphSettings();
+    this.zeroPointsMap = new Map(); 
+    this.intersectionPoints = [];    
+    this.scale = 40;       
+    this.offsetX = 0;    
+    this.offsetY = 0;
+    this.polygonMode = false;
+    this.polygonPoints = [];
+    this.integrationRegion = null;
+    this.tangentLine = null;
+    this.animationParameter = 0;
+    this.markerMode = false;
+    this.markers = [];
+  }
+
+  
+  draw() {
+    const traces = [];
+
+    for (const fd of this.functionList) {
+      if (!fd.visible || !fd.expression) continue;
+      const xVals = [];
+      const yVals = [];
+      const steps = 500;
+      const dx = (fd.domainEnd - fd.domainStart) / steps;
+      let x = fd.domainStart;
+      for (let i = 0; i <= steps; i++) {
+        
+        const y = fd.expression(x);
+        xVals.push(x);
+        yVals.push(y);
+        x += dx;
+      }
+      traces.push({
+        x: xVals,
+        y: yVals,
+        mode: 'lines',
+        line: {
+          color: fd.lineColor,
+          width: fd.lineStroke
+        },
+        name: fd.expressionText
+      });
+    }
+
+    
+    if (this.graphSettings.showZeroPoints) {
+      for (const [fd, zeros] of this.zeroPointsMap.entries()) {
+        if (!fd.visible || !fd.expression) continue;
+        if (zeros.length > 0) {
+          const zx = zeros;
+          const zy = zeros.map(z => fd.expression(z));
+          traces.push({
+            x: zx,
+            y: zy,
+            mode: 'markers',
+            marker: {
+              color: 'magenta',
+              size: this.graphSettings.pointSize
+            },
+            name: `Zérushely: ${fd.expressionText}`
+          });
+        }
+      }
+    }
+
+   
+    if (this.graphSettings.showIntersections && this.intersectionPoints.length > 0) {
+      const ix = this.intersectionPoints.map(([mx]) => mx);
+      const iy = this.intersectionPoints.map(([mx, my]) => my);
+      traces.push({
+        x: ix,
+        y: iy,
+        mode: 'markers',
+        marker: {
+          color: 'yellow',
+          size: this.graphSettings.pointSize
+        },
+        name: 'Metszéspontok'
+      });
+    }
+
+   
+    if (this.markers.length > 0) {
+      const mx = this.markers.map(m => m.x);
+      const my = this.markers.map(m => m.y);
+      traces.push({
+        x: mx,
+        y: my,
+        mode: 'markers+text',
+        text: this.markers.map(m => `(${m.x.toFixed(2)}, ${m.y.toFixed(2)})`),
+        textposition: 'top right',
+        marker: {
+          color: 'red',
+          size: 8
+        },
+        name: 'Markerek'
+      });
+    }
+
+    
+    if (this.tangentLine && this.tangentLine.expression) {
+      const steps = 300;
+      const xVals = [];
+      const yVals = [];
+      const dx = (this.tangentLine.domainEnd - this.tangentLine.domainStart) / steps;
+      let xx = this.tangentLine.domainStart;
+      for (let i = 0; i <= steps; i++) {
+        const yy = this.tangentLine.expression(xx);
+        xVals.push(xx);
+        yVals.push(yy);
+        xx += dx;
+      }
+      traces.push({
+        x: xVals,
+        y: yVals,
+        mode: 'lines',
+        line: {
+          color: this.tangentLine.lineColor || '#00f',
+          width: this.tangentLine.lineStroke || 2,
+          dash: 'dash'
+        },
+        name: `Tangens: ${this.tangentLine.expressionText}`
+      });
+    }
+
+    
+    if (this.integrationRegion) {
+      const { expr, a, b, color } = this.integrationRegion;
+      const steps = 200;
+      const xVals = [];
+      const yVals = [];
+      const dx = (b - a) / steps;
+      let xx = a;
+      for (let i = 0; i <= steps; i++) {
+        xVals.push(xx);
+        yVals.push(expr(xx));
+        xx += dx;
+      }
+      traces.push({
+        x: xVals,
+        y: yVals,
+        mode: 'lines',
+        fill: 'tozeroy',
+        line: {
+          color: color,
+          width: 1
+        },
+        opacity: this.graphSettings.domainAlpha,
+        name: 'Integrál régió'
+      });
+    }
+
+    
+    if (this.polygonMode && this.polygonPoints.length > 0) {
+      const px = this.polygonPoints.map(p => p.x);
+      const py = this.polygonPoints.map(p => p.y);
+      traces.push({
+        x: px,
+        y: py,
+        mode: 'lines+markers',
+        line: { color: 'cyan' },
+        marker: { color: 'cyan', size: 8 },
+        name: 'Poligon (folyamatban)'
+      });
+    }
+
+    
+    Plotly.newPlot(this.plotDiv, traces, {
+      title: 'f(xit) - Plotly diagram',
+      paper_bgcolor: this.graphSettings.backgroundColor,
+      plot_bgcolor: '#1a1a1a',
+      xaxis: {
+       
+        gridcolor: this.graphSettings.gridColor
+      },
+      yaxis: {
+        
+        gridcolor: this.graphSettings.gridColor
+      }
+    });
+  }
+
+ 
+  zoomIn() {
+    console.log("Plotly: ZoomIn - interaktív vagy Plotly.relayout(...).");
+  }
+  zoomOut() {
+    console.log("Plotly: ZoomOut - interaktív vagy Plotly.relayout(...).");
+  }
+  resetView() {
+    console.log("Plotly: resetView -> re-plot alap range");
+    this.draw();
+  }
+  zoomToFit() {
+    console.log("Plotly: zoomToFit -> auto range");
+    this.draw();
+  }
+}
+
+
+function computePolygonArea(points) {
+  let sum = 0;
+  for (let i = 0; i < points.length; i++) {
+    const p1 = points[i];
+    const p2 = points[(i + 1) % points.length];
+    sum += p1.x * p2.y - p2.x * p1.y;
+  }
+  return Math.abs(sum) / 2;
+}
+function computePolygonPerimeter(points) {
+  let sum = 0;
+  for (let i = 0; i < points.length; i++) {
+    const p1 = points[i];
+    const p2 = points[(i + 1) % points.length];
+    sum += Math.hypot(p2.x - p1.x, p2.y - p1.y);
+  }
+  return sum;
+}
+
+function findZeros(f, start, end, step = 0.01) {
+  const res = [];
+  let x = start;
+  const eps = 1e-7;
+  let prevVal = f(x);
+  while (x <= end) {
+    const currentVal = f(x);
+    if (Math.abs(currentVal) < eps) {
+      res.push(x);
+    } else if (prevVal * currentVal < 0) {
+      res.push(x - step / 2);
+    }
+    x += step;
+    prevVal = currentVal;
+  }
+  return Array.from(new Set(res)).sort((a, b) => a - b);
+}
+
+function findIntersections(f1, f2, start, end, step) {
+  const list = [];
+  let x = start;
+  const eps = 1e-7;
+  let prevVal = f1(x) - f2(x);
+  while (x <= end) {
+    const diff = f1(x) - f2(x);
+    if (Math.abs(diff) < eps) {
+      list.push([x, f1(x)]);
+    } else if (prevVal * diff < 0) {
+      const mid = x - step / 2;
+      list.push([mid, f1(mid)]);
+    }
+    x += step;
+    prevVal = diff;
+  }
+  return list;
+}
+
+function computeNthDerivative(f, a, n, h = 1e-5) {
+  if (n === 0) return f(a);
+  return (computeNthDerivative(f, a + h, n - 1, h) - computeNthDerivative(f, a - h, n - 1, h)) / (2 * h);
+}
+
+function computeLimit(f, x0, h = 1e-5) {
+  const left = f(x0 - h);
+  const right = f(x0 + h);
+  return [left, right];
+}
+
+function getMonotonicityIntervals(f, start, end, step) {
+  const increasing = [];
+  const decreasing = [];
+  let currentType = null;
+  let intervalStart = start;
+  let x = start;
+  while (x <= end - step) {
+    const f1 = f(x);
+    const f2 = f(x + step);
+    const derivative = (f2 - f1) / step;
+    const type = derivative >= 0 ? "inc" : "dec";
+    if (currentType === null) {
+      currentType = type;
+    } else if (type !== currentType) {
+      if (currentType === "inc") increasing.push([intervalStart, x]);
+      else decreasing.push([intervalStart, x]);
+      intervalStart = x;
+      currentType = type;
+    }
+    x += step;
+  }
+  if (currentType === "inc") increasing.push([intervalStart, end]);
+  else if (currentType === "dec") decreasing.push([intervalStart, end]);
+  return [increasing, decreasing];
+}
+
+function getConvexityIntervals(f, start, end, step) {
+  const convex = [];
+  const concave = [];
+  let currentType = null;
+  let intervalStart = start;
+  let x = start;
+  while (x <= end - step) {
+    const f1 = f(x - step);
+    const f2 = f(x);
+    const f3 = f(x + step);
+    const secondDerivative = (f3 - 2*f2 + f1)/(step*step);
+    const type = secondDerivative >= 0 ? "convex" : "concave";
+    if (currentType === null) {
+      currentType = type;
+    } else if (type !== currentType) {
+      if (currentType === "convex") convex.push([intervalStart, x]);
+      else concave.push([intervalStart, x]);
+      intervalStart = x;
+      currentType = type;
+    }
+    x += step;
+  }
+  if (currentType === "convex") convex.push([intervalStart, end]);
+  else if (currentType === "concave") concave.push([intervalStart, end]);
+  return [convex, concave];
+}
+
+function findLocalExtrema(f, start, end, step) {
+  const minima = [];
+  const maxima = [];
+  let x = start + step;
+  while (x <= end - step) {
+    const fLeft = f(x - step);
+    const fCenter = f(x);
+    const fRight = f(x + step);
+    const d1 = (fCenter - fLeft) / step;
+    const d2 = (fRight - fCenter) / step;
+    if (d1 < 0 && d2 > 0) {
+      minima.push([x, fCenter]);
+    } else if (d1 > 0 && d2 < 0) {
+      maxima.push([x, fCenter]);
+    }
+    x += step;
+  }
+  return [minima, maxima];
+}
+
+function factorial(n) {
+  if (n <= 1) return 1;
+  let result = 1;
+  for (let i = 2; i <= n; i++) {
+    result *= i;
+  }
+  return result;
+}
+
+function integrateFunction(f, a, b, steps = 1000) {
+  const h = (b - a) / steps;
+  let sum = 0.5 * (f(a) + f(b));
+  for (let i = 1; i < steps; i++) {
+    sum += f(a + i * h);
+  }
+  return sum * h;
+}
+
+
+class Modal {
+  static create(contentHTML) {
+    const dialog = document.createElement("dialog");
+    dialog.innerHTML = contentHTML;
+    dialog.style.border = "none";
+    dialog.style.borderRadius = "8px";
+    dialog.style.padding = "20px";
+    dialog.style.boxShadow = "0 4px 10px rgba(0,0,0,0.5)";
+    document.body.appendChild(dialog);
+    return dialog;
+  }
+  static alert(message) {
+    return new Promise((resolve) => {
+      const dialog = Modal.create(`
+        <div style="font-family: Roboto, sans-serif; color: #333;">
+          <p>${message}</p>
+          <div style="text-align: right; margin-top: 20px;">
+            <button id="modalOk" style="padding: 8px 16px; border: none; background: #ffa500; color: #fff; border-radius: 4px; cursor: pointer;">OK</button>
+          </div>
+        </div>
+      `);
+      dialog.querySelector("#modalOk").addEventListener("click", () => {
+        dialog.close();
+        document.body.removeChild(dialog);
+        resolve();
+      });
+      dialog.showModal();
+    });
+  }
+  static prompt(title, defaultValue = "") {
+    return new Promise((resolve) => {
+      const dialog = Modal.create(`
+        <div style="font-family: Roboto, sans-serif; color: #333;">
+          <h3>${title}</h3>
+          <input id="modalInput" type="text" value="${defaultValue}" style="width: 100%; padding: 8px; margin-top: 10px; border: 1px solid #ccc; border-radius: 4px;">
+          <div style="text-align: right; margin-top: 20px;">
+            <button id="modalCancel" style="padding: 8px 16px; margin-right: 10px; border: none; background: #999; color: #fff; border-radius: 4px; cursor: pointer;">Mégse</button>
+            <button id="modalOk" style="padding: 8px 16px; border: none; background: #ffa500; color: #fff; border-radius: 4px; cursor: pointer;">OK</button>
+          </div>
+        </div>
+      `);
+      dialog.querySelector("#modalOk").addEventListener("click", () => {
+        const val = dialog.querySelector("#modalInput").value;
+        dialog.close();
+        document.body.removeChild(dialog);
+        resolve(val);
+      });
+      dialog.querySelector("#modalCancel").addEventListener("click", () => {
+        dialog.close();
+        document.body.removeChild(dialog);
+        resolve(null);
+      });
+      dialog.showModal();
+    });
+  }
+}
+
+class EquationEditorDialog {
+  constructor(initialText) {
+    this.initialText = initialText;
+  }
+  async open() {
+    const result = await Modal.prompt("Egyenlet szerkesztő", this.initialText);
+    return result;
+  }
+}
+
+class CalculatorDialog {
+  async open() {
+    const expr = await Modal.prompt("Számológép – Írd be a kifejezést", "");
+    if (expr !== null) {
+      try {
+        const f = createFunction(expr);
+        const val = f(0);
+        await Modal.alert("Eredmény: " + val);
+      } catch (e) {
+        await Modal.alert("Hiba: " + e);
+      }
+    }
+  }
+}
+
+class SettingsDialog {
+  constructor(settings, onSettingsChanged) {
+    this.settings = settings;
+    this.onSettingsChanged = onSettingsChanged;
+  }
+  async open() {
+    const grid = await Modal.prompt("Rács megjelenítése? (true/false)", this.settings.showGrid);
+    this.settings.showGrid = grid === "true";
+    const axis = await Modal.prompt("Tengelyek megjelenítése? (true/false)", this.settings.showAxis);
+    this.settings.showAxis = axis === "true";
+    
+    if (this.onSettingsChanged) this.onSettingsChanged();
+  }
+}
+
+class AnalysisDialog {
+  constructor(functions, onAddFunction) {
+    this.functions = functions;
+    this.onAddFunction = onAddFunction;
+  }
+  async open() {
+    const indexStr = await Modal.prompt("Válaszd ki a függvényt index szerint (0-tól):", "0");
+    const index = parseInt(indexStr, 10);
+    if (isNaN(index) || index < 0 || index >= this.functions.length) {
+      await Modal.alert("Hibás index");
+      return;
+    }
+    const fd = this.functions[index];
+    if (!fd.expression) {
+      await Modal.alert("Érvénytelen függvény.");
+      return;
+    }
+    const [minima, maxima] = findLocalExtrema(fd.expression, fd.domainStart, fd.domainEnd, 0.001);
+    let msg = "<b>Lokális szélsőértékek:</b>\n";
+    if (minima.length === 0 && maxima.length === 0) {
+      msg += "Nincs lokális szélsőérték.";
+    } else {
+      if (minima.length > 0) {
+        msg += "Minimumok:\n";
+        minima.forEach(([x, y]) => {
+          msg += `x=${x.toFixed(4)}, y=${y.toFixed(4)}\n`;
+        });
+      }
+      if (maxima.length > 0) {
+        msg += "Maximumok:\n";
+        maxima.forEach(([x, y]) => {
+          msg += `x=${x.toFixed(4)}, y=${y.toFixed(4)}\n`;
+        });
+      }
+    }
+    await Modal.alert(msg);
+  }
+}
+
+
+
+class FunctionInputPanel {
+  constructor(onRemove) {
+    this.onRemove = onRemove;
+    this.element = document.createElement("div");
+    this.element.className = "function-input-panel";
+    
+    this.txtExpression = document.createElement("input");
+    this.txtExpression.type = "text";
+    this.txtExpression.value = "x";
+    this.txtExpression.placeholder = "f(x)=";
+
+    this.btnEquationEditor = document.createElement("button");
+    this.btnEquationEditor.textContent = "Szerk";
+    this.btnEquationEditor.addEventListener("click", async () => {
+      const dlg = new EquationEditorDialog(this.txtExpression.value);
+      const res = await dlg.open();
+      if (res !== null) {
+        this.txtExpression.value = res;
+      }
+    });
+
+    this.txtDomainStart = document.createElement("input");
+    this.txtDomainStart.type = "text";
+    this.txtDomainStart.value = "-10";
+
+    this.txtDomainEnd = document.createElement("input");
+    this.txtDomainEnd.type = "text";
+    this.txtDomainEnd.value = "10";
+
+    this.btnColor = document.createElement("input");
+    this.btnColor.type = "color";
+    this.btnColor.value = "#ffa500";
+
+    this.spnLineWidth = document.createElement("input");
+    this.spnLineWidth.type = "number";
+    this.spnLineWidth.value = 2;
+    this.spnLineWidth.step = 0.5;
+
+    this.chkVisible = document.createElement("input");
+    this.chkVisible.type = "checkbox";
+    this.chkVisible.checked = true;
+
+    this.chkDomain = document.createElement("input");
+    this.chkDomain.type = "checkbox";
+    this.chkDomain.checked = true;
+
+    this.chkPolar = document.createElement("input");
+    this.chkPolar.type = "checkbox";
+    this.chkPolar.checked = false;
+
+    this.btnRemove = document.createElement("button");
+    this.btnRemove.textContent = "✕";
+    this.btnRemove.addEventListener("click", () => {
+      if (this.onRemove) this.onRemove(this);
+    });
+
+    this.element.appendChild(document.createTextNode("f(x) = "));
+    this.element.appendChild(this.txtExpression);
+    this.element.appendChild(this.btnEquationEditor);
+    this.element.appendChild(document.createElement("br"));
+    this.element.appendChild(document.createTextNode("Domain: ["));
+    this.element.appendChild(this.txtDomainStart);
+    this.element.appendChild(document.createTextNode(" ; "));
+    this.element.appendChild(this.txtDomainEnd);
+    this.element.appendChild(document.createTextNode("] Szín: "));
+    this.element.appendChild(this.btnColor);
+    this.element.appendChild(document.createTextNode(" Vonal: "));
+    this.element.appendChild(this.spnLineWidth);
+    this.element.appendChild(document.createTextNode(" Látható: "));
+    this.element.appendChild(this.chkVisible);
+    this.element.appendChild(document.createTextNode(" Domain: "));
+    this.element.appendChild(this.chkDomain);
+    this.element.appendChild(document.createTextNode(" Polar: "));
+    this.element.appendChild(this.chkPolar);
+    this.element.appendChild(this.btnRemove);
+
+    this.element.__panel = this;
+  }
+
+  toFunctionData() {
+    let expr = this.txtExpression.value.trim().toLowerCase().replace(/\s/g, "");
+    if (expr.startsWith("f(x)=")) expr = expr.substring(5);
+    const domainS = parseFloat(this.txtDomainStart.value) || -10;
+    const domainE = parseFloat(this.txtDomainEnd.value) || 10;
+    const fd = new FunctionData();
+    fd.expressionText = expr;
+    fd.domainStart = Math.min(domainS, domainE);
+    fd.domainEnd = Math.max(domainS, domainE);
+    fd.lineColor = this.btnColor.value;
+    fd.lineStroke = parseFloat(this.spnLineWidth.value) || 2;
+    fd.visible = this.chkVisible.checked;
+    fd.showDomain = this.chkDomain.checked;
+    fd.isPolar = this.chkPolar.checked;
+    fd.expression = createFunction(expr);
+    return fd;
+  }
+}
+
+
+
+class PlainNotePanel {
+  constructor() {
+    this.element = document.createElement("div");
+    this.textArea = document.createElement("textarea");
+    this.textArea.rows = 20;
+    this.textArea.cols = 30;
+    this.element.appendChild(this.textArea);
+  }
+  getText() { return this.textArea.value; }
+  setText(text) { this.textArea.value = text; }
+}
+
+class MarkdownNotePanel {
+  constructor() {
+    this.element = document.createElement("div");
+    this.textArea = document.createElement("textarea");
+    this.previewPane = document.createElement("div");
+    this.btnPreview = document.createElement("button");
+    this.btnPreview.textContent = "Előnézet";
+    this.btnPreview.addEventListener("click", () => {
+      const md = this.textArea.value;
+      this.previewPane.innerHTML = markdownToHtml(md);
+    });
+    this.element.appendChild(this.btnPreview);
+    this.element.appendChild(this.textArea);
+    this.element.appendChild(this.previewPane);
+  }
+  getText() { return this.textArea.value; }
+  setText(text) { this.textArea.value = text; }
+}
+
+function markdownToHtml(md) {
+  let html = md;
+  html = html.replace(/^# (.*)$/gm, "<h1>$1</h1>");
+  html = html.replace(/^## (.*)$/gm, "<h2>$1</h2>");
+  html = html.replace(/^### (.*)$/gm, "<h3>$1</h3>");
+  html = html.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
+  html = html.replace(/\*(.*?)\*/g, "<i>$1</i>");
+  html = html.replace(/\$\$(.*?)\$\$/g, "<span class='math'>$1</span>");
+  html = html.replace(/\$(.*?)\$/g, "<span class='math'>$1</span>");
+  return `<div>${html}</div>`;
+}
+
+class NotesPanel {
+  constructor() {
+    this.element = document.createElement("div");
+    this.modeCombo = document.createElement("select");
+    const optPlain = document.createElement("option");
+    optPlain.textContent = "Plain";
+    const optMarkdown = document.createElement("option");
+    optMarkdown.textContent = "Markdown";
+    this.modeCombo.appendChild(optPlain);
+    this.modeCombo.appendChild(optMarkdown);
+    this.plainPanel = new PlainNotePanel();
+    this.markdownPanel = new MarkdownNotePanel();
+    this.cardPanel = document.createElement("div");
+    this.cardPanel.appendChild(this.plainPanel.element);
+    this.currentPanel = "Plain";
+    this.modeCombo.addEventListener("change", () => {
+      this.cardPanel.innerHTML = "";
+      if (this.modeCombo.value === "Plain") {
+        this.cardPanel.appendChild(this.plainPanel.element);
+        this.currentPanel = "Plain";
+      } else {
+        this.cardPanel.appendChild(this.markdownPanel.element);
+        this.currentPanel = "Markdown";
+      }
+    });
+    this.element.appendChild(document.createTextNode("Jegyzet mód: "));
+    this.element.appendChild(this.modeCombo);
+    this.element.appendChild(this.cardPanel);
+  }
+  async saveNote() {
+    await Modal.alert("Jegyzet mentve! (dummy)");
+  }
+  async loadNote() {
+    await Modal.alert("Jegyzet betöltve! (dummy)");
+  }
+}
+
+
+
+class MainFrame {
+  constructor() {
+   
+    this.graphSettings = new GraphSettings();
+
+    
+    this.fvContainer = document.getElementById("fvContainer");
+    if (!this.fvContainer) {
+      
+      this.fvContainer = document.createElement("div");
+      this.fvContainer.id = "fvContainer";
+      document.body.appendChild(this.fvContainer);
+    }
+
+    
+    this.notesPanel = new NotesPanel();
+
+  
+    const plotDiv = document.getElementById("graphCanvas");
+    if (!plotDiv) {
+      console.error("Nem található a 'graphCanvas' elem!");
+      return;
+    }
+  
+    this.graphPanel = new GraphPanel(plotDiv);
+
+  
+    this.lblCoordinates = document.getElementById("lblCoordinates");
+    if (!this.lblCoordinates) {
+      this.lblCoordinates = document.createElement("div");
+      this.lblCoordinates.id = "lblCoordinates";
+      document.body.appendChild(this.lblCoordinates);
+    }
+  }
+
+  addFunctionPanel(expr, domainS, domainE, col, isPolar) {
+    const fpanel = new FunctionInputPanel((panel) => {
+      this.fvContainer.removeChild(panel.element);
+    });
+    fpanel.txtExpression.value = expr;
+    fpanel.txtDomainStart.value = domainS;
+    fpanel.txtDomainEnd.value = domainE;
+    fpanel.btnColor.value = col;
+    fpanel.chkPolar.checked = isPolar;
+    this.fvContainer.appendChild(fpanel.element);
+  }
+
+  doCalculate() {
+    
+    const panels = this.fvContainer.querySelectorAll(".function-input-panel");
+    const dataList = [];
+    panels.forEach(panelElem => {
+      if (panelElem.__panel) {
+        const fd = panelElem.__panel.toFunctionData();
+        if (fd.expressionText.trim() !== "") {
+          dataList.push(fd);
+        }
+      }
+    });
+
+   
+    const zeroMap = new Map();
+    for (const fd of dataList) {
+      if (!fd.expression || !fd.visible) {
+        zeroMap.set(fd, []);
+        continue;
+      }
+      const zeros = findZeros(fd.expression, fd.domainStart, fd.domainEnd, this.graphSettings.stepForNumericalSearch);
+      zeroMap.set(fd, zeros);
+    }
+
+   
+    const allIntersections = [];
+    for (let i = 0; i < dataList.length; i++) {
+      for (let j = i+1; j < dataList.length; j++) {
+        const f1 = dataList[i];
+        const f2 = dataList[j];
+        if (!f1.visible || !f2.visible || !f1.expression || !f2.expression) continue;
+        const start = Math.max(f1.domainStart, f2.domainStart);
+        const end = Math.min(f1.domainEnd, f2.domainEnd);
+        if (end > start) {
+          const inters = findIntersections(f1.expression, f2.expression, start, end, this.graphSettings.stepForNumericalSearch);
+          allIntersections.push(...inters);
+        }
+      }
+    }
+
+    this.graphPanel.functionList = dataList;
+    this.graphPanel.zeroPointsMap = zeroMap;
+    this.graphPanel.intersectionPoints = allIntersections;
+    this.graphPanel.draw();
+
+  
+    let sb = "";
+    for (const fd of dataList) {
+      sb += `<b>${fd.expressionText}</b>, domain=[${fd.domainStart}, ${fd.domainEnd}]`;
+      if (fd.isPolar) sb += " (Polar)";
+      sb += "<br>";
+      const zs = zeroMap.get(fd) || [];
+      if (zs.length === 0) {
+        sb += "<i>Nincs zérushely a domainben</i><br>";
+      } else {
+        sb += "Zérushelyek: " + zs.map(z => z.toFixed(4)).join(", ") + "<br>";
+      }
+      sb += "<br>";
+    }
+    if (allIntersections.length > 0) {
+      sb += "<b>Metszéspontok:</b><br>";
+      for (const [mx, my] of allIntersections) {
+        sb += `x=${mx.toFixed(4)}, y=${my.toFixed(4)}<br>`;
+      }
+    } else {
+      sb += "<i>Nincsenek metszéspontok vagy nincs legalább 2 látható függvény.</i>";
+    }
+    Modal.alert(sb.replace(/<br>/g, "\n"));
+  }
+
+  exportGraphPanel() {
+    Modal.alert("Export PNG (dummy) - Plotly pl. a menüből!");
+  }
+  saveLog() {
+    Modal.alert("Eredmény mentése (dummy).");
+  }
+  saveSession() {
+    Modal.alert("Munkamenet mentése (dummy).");
+  }
+  loadSession() {
+    Modal.alert("Munkamenet betöltése (dummy).");
+  }
+
+  
+  static get globalFunctions() {
+    return [
+      
+    ];
+  }
+  static get factorialOperator() {
+
+    return function(x) {
+     
+    };
+  }
+}
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const mainFrame = new MainFrame();
+
+  
+  const btnAddFunction = document.getElementById("btnAddFunction");
+  if (btnAddFunction) {
+    btnAddFunction.addEventListener("click", () => {
+      mainFrame.addFunctionPanel(mainFrame.graphSettings.defaultFunctionFormat + " x", -10, 10, "#ffa500", false);
+    });
+  }
+  const btnClearFunctions = document.getElementById("btnClearFunctions");
+  if (btnClearFunctions) {
+    btnClearFunctions.addEventListener("click", () => {
+      mainFrame.fvContainer.innerHTML = "";
+      mainFrame.graphPanel.functionList = [];
+      mainFrame.graphPanel.draw();
+    });
+  }
+  const btnCalc = document.getElementById("btnCalc");
+  if (btnCalc) {
+    btnCalc.addEventListener("click", () => {
+      mainFrame.doCalculate();
+    });
+  }
+  const btnSettings = document.getElementById("btnSettings");
+  if (btnSettings) {
+    btnSettings.addEventListener("click", async () => {
+      const dlg = new SettingsDialog(mainFrame.graphSettings, () => {
+        mainFrame.graphPanel.draw();
+      });
+      await dlg.open();
+    });
+  }
+  const btnAnalysis = document.getElementById("btnAnalysis");
+  if (btnAnalysis) {
+    btnAnalysis.addEventListener("click", async () => {
+      const visibleFunctions = mainFrame.graphPanel.functionList.filter(fd => fd.visible && fd.expression);
+      if (visibleFunctions.length === 0) {
+        await Modal.alert("Nincs megjeleníthető függvény az analízishez.");
+        return;
+      }
+      const dlg = new AnalysisDialog(visibleFunctions, (newFD) => {
+        mainFrame.addFunctionPanel(newFD.expressionText, newFD.domainStart, newFD.domainEnd, newFD.lineColor, newFD.isPolar);
+        mainFrame.doCalculate();
+      });
+      await dlg.open();
+    });
+  }
+  const btnDraw = document.getElementById("drawButton");
+  const functionInput = document.getElementById("functionInput");
+  if (btnDraw && functionInput) {
+    btnDraw.addEventListener("click", () => {
+      const expr = functionInput.value;
+      const f = createFunction(expr);
+      if (f) {
+        const fd = new FunctionData();
+        fd.expressionText = expr;
+        fd.expression = f;
+        fd.domainStart = -10;
+        fd.domainEnd = 10;
+        fd.lineColor = "#ffa500";
+        fd.lineStroke = 2;
+        mainFrame.graphPanel.functionList.push(fd);
+        mainFrame.graphPanel.draw();
+      } else {
+        Modal.alert("Hiba a függvény értelmezésében!");
+      }
+    });
+  }
+  const btnResetView = document.getElementById("resetViewButton");
+  if (btnResetView) {
+    btnResetView.addEventListener("click", () => {
+      mainFrame.graphPanel.resetView();
+    });
+  }
+  const btnZoomIn = document.getElementById("zoomInButton");
+  if (btnZoomIn) {
+    btnZoomIn.addEventListener("click", () => {
+      mainFrame.graphPanel.zoomIn();
+    });
+  }
+  const btnZoomOut = document.getElementById("zoomOutButton");
+  if (btnZoomOut) {
+    btnZoomOut.addEventListener("click", () => {
+      mainFrame.graphPanel.zoomOut();
+    });
+  }
+  const btnZoomToFit = document.getElementById("zoomToFitButton");
+  if (btnZoomToFit) {
+    btnZoomToFit.addEventListener("click", () => {
+      mainFrame.graphPanel.zoomToFit();
+    });
+  }
+  const btnPolygonTool = document.getElementById("btnPolygonTool");
+  if (btnPolygonTool) {
+    btnPolygonTool.addEventListener("click", () => {
+      mainFrame.graphPanel.polygonMode = btnPolygonTool.checked;
+      if (!btnPolygonTool.checked) {
+        mainFrame.graphPanel.polygonPoints = [];
+        mainFrame.graphPanel.draw();
+      }
+    });
+  }
+  const btnIntegrate = document.getElementById("btnIntegrate");
+  if (btnIntegrate) {
+    btnIntegrate.addEventListener("click", async () => {
+      const visibleFunctions = mainFrame.graphPanel.functionList.filter(fd => fd.visible && fd.expression);
+      if (visibleFunctions.length === 0) {
+        await Modal.alert("Nincs megjeleníthető függvény az integráláshoz.");
+        return;
+      }
+      const indexStr = await Modal.prompt("Válaszd ki a függvényt index szerint (0-tól):", "0");
+      const index = parseInt(indexStr, 10);
+      if (isNaN(index) || index < 0 || index >= visibleFunctions.length) {
+        await Modal.alert("Hibás index");
+        return;
+      }
+      const lowerStr = await Modal.prompt("Alsó határ:", "-1");
+      const upperStr = await Modal.prompt("Felső határ:", "1");
+      const lower = parseFloat(lowerStr);
+      const upper = parseFloat(upperStr);
+      if (isNaN(lower) || isNaN(upper) || lower >= upper) {
+        await Modal.alert("Hibás intervallum");
+        return;
+      }
+      const fd = visibleFunctions[index];
+      const area = integrateFunction(fd.expression, lower, upper, 1000);
+      mainFrame.graphPanel.integrationRegion = new IntegrationRegion(fd.expression, lower, upper, fd.lineColor);
+      mainFrame.graphPanel.draw();
+      await Modal.alert("Az integrál értéke: " + area.toFixed(4));
+    });
+  }
+  const btnCalculator = document.getElementById("btnCalculator");
+  if (btnCalculator) {
+    btnCalculator.addEventListener("click", async () => {
+      const dlg = new CalculatorDialog();
+      await dlg.open();
+    });
+  }
+  const btnDerivative = document.getElementById("btnDerivative");
+  if (btnDerivative) {
+    btnDerivative.addEventListener("click", async () => {
+      const visibleFunctions = mainFrame.graphPanel.functionList.filter(fd => fd.visible && fd.expression);
+      if (visibleFunctions.length === 0) {
+        await Modal.alert("Nincs megjeleníthető függvény a derivált számításához.");
+        return;
+      }
+      const indexStr = await Modal.prompt("Válaszd ki a függvényt index szerint (0-tól):", "0");
+      const index = parseInt(indexStr, 10);
+      if (isNaN(index) || index < 0 || index >= visibleFunctions.length) {
+        await Modal.alert("Hibás index");
+        return;
+      }
+      const x0Str = await Modal.prompt("x érték:", "0");
+      const x0 = parseFloat(x0Str);
+      const h = 1e-5;
+      const fd = visibleFunctions[index];
+      const fPlus = fd.expression(x0 + h);
+      const fMinus = fd.expression(x0 - h);
+      const derivative = (fPlus - fMinus) / (2*h);
+      await Modal.alert("A derivált értéke: " + derivative.toFixed(4));
+      const fAtX = fd.expression(x0);
+      const tangentExprStr = `${fAtX} + ${derivative}*(x - ${x0})`;
+      const tangentFunction = new FunctionData();
+      tangentFunction.expressionText = tangentExprStr;
+      tangentFunction.domainStart = fd.domainStart;
+      tangentFunction.domainEnd = fd.domainEnd;
+      tangentFunction.lineColor = "#0000ff";
+      tangentFunction.lineStroke = 2;
+      tangentFunction.visible = true;
+      tangentFunction.showDomain = false;
+      tangentFunction.expression = createFunction(tangentExprStr);
+      mainFrame.graphPanel.tangentLine = tangentFunction;
+      mainFrame.graphPanel.draw();
+    });
+  }
+  const btnAnimate = document.getElementById("btnAnimate");
+  if (btnAnimate) {
+    let animationTimer = null;
+    btnAnimate.addEventListener("click", () => {
+      if (!animationTimer) {
+        animationTimer = setInterval(() => {
+          mainFrame.graphPanel.animationParameter += 0.1;
+          mainFrame.graphPanel.draw();
+        }, 50);
+        btnAnimate.textContent = "Stop Animation";
+      } else {
+        clearInterval(animationTimer);
+        animationTimer = null;
+        btnAnimate.textContent = "Animate";
+      }
+    });
+  }
+  const btnMarkerTool = document.getElementById("btnMarkerTool");
+  if (btnMarkerTool) {
+    btnMarkerTool.addEventListener("click", () => {
+      mainFrame.graphPanel.markerMode = btnMarkerTool.checked;
+    });
+  }
+  const btnClearMarkers = document.getElementById("btnClearMarkers");
+  if (btnClearMarkers) {
+    btnClearMarkers.addEventListener("click", () => {
+      mainFrame.graphPanel.markers = [];
+      mainFrame.graphPanel.draw();
+    });
+  }
+});

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>f(xit) Graph Calculator (Plotly verzió)</title>
+ 
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <link rel="stylesheet" href="styles.css">
+
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <i class="fas fa-chart-line"></i>
+      <span>f(xit)</span>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#" id="btnCalc"><i class="fas fa-calculator"></i> Számol &amp; Rajzol</a></li>
+        <li><a href="#" id="btnSettings"><i class="fas fa-cog"></i> Beállítások</a></li>
+        <li><a href="#" id="btnAnalysis"><i class="fas fa-chart-area"></i> Analízis</a></li>
+      </ul>
+    </nav>
+  </header>
+  <div class="container">
+    <aside class="sidebar">
+      <section class="function-panel">
+        <h2>Függvények</h2>
+        <div id="fvContainer"></div>
+        <button id="btnAddFunction" class="btn"><i class="fas fa-plus"></i> Új függvény</button>
+        <button id="btnClearFunctions" class="btn"><i class="fas fa-trash-alt"></i> Függvények törlése</button>
+      </section>
+      <section class="notes-panel">
+        <h2>Jegyzetek</h2>
+       
+      </section>
+    </aside>
+    <main class="main-content">
+      <div class="toolbar">
+        <input type="text" id="functionInput" placeholder="Írd be a függvényt, pl. sin(x)" value="sin(x)">
+        <button id="drawButton" class="btn"><i class="fas fa-draw-polygon"></i> Rajzol</button>
+        <button id="resetViewButton" class="btn"><i class="fas fa-sync-alt"></i> Visszaállítás</button>
+        <button id="zoomInButton" class="btn"><i class="fas fa-search-plus"></i> Zoom In</button>
+        <button id="zoomOutButton" class="btn"><i class="fas fa-search-minus"></i> Zoom Out</button>
+        <button id="zoomToFitButton" class="btn"><i class="fas fa-expand"></i> Zoom to Fit</button>
+        <button id="btnIntegrate" class="btn"><i class="fas fa-square-root-variable"></i> Integrál</button>
+        <button id="btnCalculator" class="btn"><i class="fas fa-calculator"></i> Számológép</button>
+        <button id="btnDerivative" class="btn"><i class="fas fa-project-diagram"></i> Derivált</button>
+        <button id="btnAnimate" class="btn"><i class="fas fa-play"></i> Animate</button>
+        <button id="btnMarkerTool" class="btn"><i class="fas fa-map-marker-alt"></i> Marker Tool</button>
+        <button id="btnClearMarkers" class="btn"><i class="fas fa-eraser"></i> Clear Markers</button>
+      </div>
+     
+      <div class="canvas-container">
+        <div id="graphCanvas" style="width: 100%; height: 100%;"></div>
+      </div>
+    </main>
+  </div>
+  <footer>
+    <div id="lblCoordinates"></div>
+    <p>&copy; 2025 f(xit) Graph Calculator</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
