@@ -2,131 +2,209 @@
 <html lang="hu">
   <head>
     <meta charset="UTF-8" />
-    <title>f(xit) – Kezdőlap (Dark, Komolyabb Design)</title>
-
+    <title>f(xit) – Kezdőlap (Modern, Wave nélkül)</title>
     
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     />
-
     
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css"
     />
-
     
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+    />
+
     <style>
       
-      body {
-        background-color: #121212;
-        color: #f5f5f5;
+      * {
         margin: 0;
         padding: 0;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        position: relative;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Roboto", sans-serif;
+        color: #f5f5f5;
         min-height: 100vh;
         overflow-x: hidden;
+        position: relative;
+      }
+
+      
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(-45deg, #111, #222, #2b2b2b, #121212);
+        background-size: 400% 400%;
+        z-index: -4;
+        animation: gradientBG 20s ease infinite;
+      }
+      @keyframes gradientBG {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
       }
 
       
       #particles-js {
-        position: absolute;
-        width: 100%;
-        height: 100%;
+        position: fixed;
         top: 0;
         left: 0;
-        z-index: 0; 
+        width: 100%;
+        height: 100%;
+        z-index: -3; 
       }
 
       
       .navbar {
-        z-index: 10; 
-        background-color: #111; 
+        transition: background-color 0.3s, box-shadow 0.3s;
+        background-color: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(5px);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      .navbar-scrolled {
+        background-color: rgba(0, 0, 0, 0.8);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
       }
       .navbar-brand img {
         height: 40px;
         margin-right: 10px;
       }
+      .navbar-brand span {
+        font-weight: 600;
+        letter-spacing: 1px;
+      }
 
-    
+      
       .hero {
-        min-height: 80vh; 
+        min-height: 80vh;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        position: relative;
-        z-index: 5; 
         text-align: center;
-        overflow: hidden;
+        position: relative;
+        padding-top: 80px; /* a nav miatt */
       }
       .hero h1 {
         font-size: 3rem;
         font-weight: 700;
         margin-bottom: 1rem;
       }
+      .typed-cursor {
+        color: #28e6a0; /* A "villogó kurzor" */
+      }
       .hero p {
-        font-size: 1.2rem;
-        color: #cccccc;
+        font-size: 1.3rem;
+        color: #ccc;
         margin-bottom: 1.5rem;
       }
-
-     
-      .hero-wave {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: auto;
-        z-index: 1;
+      .hero .btn {
+        font-size: 1.2rem;
+        padding: 0.8rem 2rem;
       }
 
       
-      .btn-no-anim {
-        transition: background-color 0.3s;
+      main {
+        position: relative;
+        z-index: 1;
       }
-      .btn-no-anim:hover {
-        filter: brightness(0.9);
+      .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+      .section-subtitle {
+        color: #b9b9b9;
+        margin-bottom: 2rem;
       }
 
-     
+      
+      .glass-card {
+        background: rgba(255, 255, 255, 0.07);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        border-radius: 15px;
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        overflow: hidden;
+        position: relative;
+      }
+      .glass-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(0, 255, 200, 0.2);
+      }
+      .glass-card::before {
+      
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        width: calc(100% + 4px);
+        height: calc(100% + 4px);
+        background: linear-gradient(90deg, #28e6a0, #4287f5, #d12df1);
+        background-size: 400% 400%;
+        animation: borderNeon 5s linear infinite;
+        z-index: -1;
+        border-radius: 15px;
+      }
+      @keyframes borderNeon {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      .glass-card .card-title {
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+      }
+      .glass-card .card-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      
       .badge-new {
         background-color: #e62e57;
         color: #fff;
         font-size: 0.7rem;
         font-weight: 600;
-        padding: 0.2rem 0.4rem;
+        padding: 0.3rem 0.5rem;
         border-radius: 0.25rem;
         margin-left: 0.4rem;
       }
 
-     
-      .card.bg-dark {
-        background: linear-gradient(135deg, #1f1f1f 0%, #2b2b2b 100%);
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      }
-      .card-title {
-        font-size: 1.4rem;
-        margin-bottom: 0.75rem;
-      }
-      .card-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      
+    
       footer {
-        background-color: #1f1f1f;
-        color: #aaaaaa;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        padding: 1.5rem 0;
         text-align: center;
-        padding: 1rem 0;
-        position: relative;
-        z-index: 10;
+        color: #bbb;
+        margin-top: 3rem;
       }
 
-      
+     
       @media (max-width: 576px) {
         .hero h1 {
           font-size: 2rem;
@@ -137,8 +215,9 @@
       }
     </style>
   </head>
+
   <body>
-   
+    
     <div id="particles-js"></div>
 
     
@@ -159,9 +238,11 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <div
+          class="collapse navbar-collapse justify-content-end align-items-center"
+          id="navbarNav"
+        >
           <ul class="navbar-nav">
-            
             <li class="nav-item">
               <a class="nav-link" href="#hasznalat">Használati útmutató</a>
             </li>
@@ -179,97 +260,77 @@
       </div>
     </nav>
 
-   
+    
     <header class="hero">
-      <div class="container position-relative z-2">
-        <h1 data-aos="fade-down" data-aos-duration="1000">Üdvözlünk az f(xit)-ben!</h1>
-        <p data-aos="fade-up" data-aos-duration="1000">
-          Interaktív matematikai eszköz a függvények, animációk, deriválás és integrálás világában.
-        </p>
-        <a
-          href="#"
-          class="btn btn-success btn-lg btn-no-anim"
-          data-aos="zoom-in"
-          data-aos-duration="1000"
-        >
-          Letöltés
-        </a>
-      </div>
-      
-      <svg
-        class="hero-wave"
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-      >
-        <path
-          fill="#121212"
-          d="M0,256L80,240C160,224,320,192,480,192C640,192,800,224,960,229.3C1120,235,1280,213,1360,202.7L1440,192L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z"
-        ></path>
-      </svg>
+      <h1>
+        <span class="typed"></span>
+      </h1>
+      <p>Interaktív matematikai eszköz – függvények, animációk, deriválás és integrálás.</p>
+      <a href="#" class="btn btn-success btn-lg">Letöltés</a>
     </header>
 
     
-    <main class="container py-5" style="z-index: 5; position: relative;">
-      
-      <div class="row mb-5">
-        <div class="col text-center">
-          <h2 class="fw-bold" data-aos="fade-up" data-aos-duration="1000">
+    <main class="container py-5">
+      <div class="row mb-5 text-center">
+        <div class="col">
+          <h2 class="section-title" data-aos="fade-up" data-aos-duration="1000">
             Fedezd fel a Dokumentációt
           </h2>
-          <p class="text-secondary" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
-            Itt találsz mindent a f(xit) használatáról, a forráskódról,<br />
+          <p
+            class="section-subtitle"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+            data-aos-delay="200"
+          >
+            Itt találsz mindent a f(xit) használatáról, a forráskódról, 
             és további oktatási segédanyagokat is.
           </p>
-        </div>
-      </div>
-
-     
-      <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
-       
-        <div class="col" data-aos="fade-up" data-aos-duration="1000">
-          <div class="card bg-dark text-white h-100">
-            <div class="card-body">
-              <h3 id="hasznalat" class="card-title text-success">
-                Használati útmutató
-              </h3>
-              <p class="card-text">
-                Lépésről lépésre bemutatjuk, hogyan kell használni a f(xit) alkalmazást:
-                függvények felvitele, grafikon kezelése, animációk, integrál és derivált számítás.
-              </p>
-            </div>
-            <div class="card-footer text-end">
-              <a href="használat.html" class="btn btn-outline-success btn-no-anim">
-                További információ
-              </a>
-            </div>
-          </div>
-        </div>
-        <!-- Kód dokumentáció -->
-        <div class="col" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100">
-          <div class="card bg-dark text-white h-100">
-            <div class="card-body">
-              <h3 id="kod-dokumentacio" class="card-title text-success">
-                Kód dokumentáció
-              </h3>
-              <p class="card-text">
-                Részletes leírás az f(xit) forráskódjáról. Megismerheted az alkalmazás felépítését,
-                a fő osztályokat, metódusokat, és a belső működési logikát.
-              </p>
-            </div>
-            <div class="card-footer text-end">
-              <a href="Kód_dokumentáció.html" class="btn btn-outline-success btn-no-anim">
-                További információ
-              </a>
-            </div>
-          </div>
         </div>
       </div>
 
       
       <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
         
-        <div class="col" data-aos="fade-up" data-aos-duration="1000">
-          <div class="card bg-dark text-white h-100">
+        <div class="col" data-aos="fade-right" data-aos-duration="1000">
+          <div class="card glass-card text-white h-100">
+            <div class="card-body">
+              <h3 id="hasznalat" class="card-title text-success">Használati útmutató</h3>
+              <p class="card-text">
+                Lépésről lépésre bemutatjuk, hogyan kell használni a f(xit) alkalmazást:
+                függvények felvitele, grafikon kezelése, animációk, integrál és derivált számítás.
+              </p>
+            </div>
+            <div class="card-footer text-end">
+              <a href="használat.html" class="btn btn-outline-success">
+                További információ
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col" data-aos="fade-left" data-aos-duration="1000">
+          <div class="card glass-card text-white h-100">
+            <div class="card-body">
+              <h3 id="kod-dokumentacio" class="card-title text-success">Kód dokumentáció</h3>
+              <p class="card-text">
+                Részletes leírás az f(xit) forráskódjáról. Megismerheted az alkalmazás felépítését,
+                a fő osztályokat, metódusokat, és a belső működési logikát.
+              </p>
+            </div>
+            <div class="card-footer text-end">
+              <a href="Kód_dokumentáció.html" class="btn btn-outline-success">
+                További információ
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+       
+        <div class="col" data-aos="fade-right" data-aos-duration="1000">
+          <div class="card glass-card text-white h-100">
             <div class="card-body">
               <h3 class="card-title text-warning">Nem találsz valamit?</h3>
               <p class="card-text">
@@ -279,28 +340,26 @@
             <div class="card-footer text-end">
               <a
                 href="https://github.com/Rexolt/fxit/issues"
-                class="btn btn-outline-warning btn-no-anim"
+                class="btn btn-outline-warning"
               >
                 GitHub issues
               </a>
             </div>
           </div>
         </div>
-
-      
-        <div class="col" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="100">
-          <div class="card bg-dark text-white h-100">
+       
+        <div class="col" data-aos="fade-left" data-aos-duration="1000">
+          <div class="card glass-card text-white h-100">
             <div class="card-body">
               <h3 id="edu" class="card-title text-info">
-                f(xit) EDU
-                <span class="badge-new">Újdonság</span>
+                f(xit) EDU <span class="badge-new">Újdonság</span>
               </h3>
               <p class="card-text">
                 Itt tanulhatsz új dolgokat vagy ismételhetsz. Nézd meg az EDU szekciókat!
               </p>
             </div>
             <div class="card-footer text-end">
-              <a href="EDUmain.html" class="btn btn-outline-info btn-no-anim">
+              <a href="EDUmain.html" class="btn btn-outline-info">
                 F(xit) EDU
               </a>
             </div>
@@ -311,18 +370,17 @@
      
       <div class="row mb-4">
         <div class="col" data-aos="fade-up" data-aos-duration="1000">
-          <div class="card bg-dark text-white h-100">
+          <div class="card glass-card text-white h-100">
             <div class="card-body">
               <h3 id="web" class="card-title text-info">
-                f(xit) WEB
-                <span class="badge-new">Újdonság</span>
+                f(xit) WEB <span class="badge-new">Újdonság</span>
               </h3>
               <p class="card-text">
                 Ez az új web szekció. Figyelem, még alpha verzió, így tartalmazhat hibákat.
               </p>
             </div>
             <div class="card-footer text-end">
-              <a href="index2.html" class="btn btn-outline-info btn-no-anim">
+              <a href="index2.html" class="btn btn-outline-info">
                 F(xit) WEB
               </a>
             </div>
@@ -336,22 +394,21 @@
       &copy; 2025 f(xit) – Minden jog fenntartva.
     </footer>
 
-   
+ 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
     ></script>
-
- 
+   
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-
-    
+  
     <script
       src="https://cdn.jsdelivr.net/gh/VincentGarreau/particles.js/particles.min.js"
     ></script>
+  
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 
-    
     <script>
-      
+     
       const particlesConfig = {
         particles: {
           number: { value: 60 },
@@ -366,7 +423,7 @@
           },
           move: {
             enable: true,
-            speed: 0.4
+            speed: 0.5
           }
         },
         interactivity: {
@@ -381,7 +438,31 @@
       
       AOS.init({
         once: true, 
-        offset: 100, 
+        offset: 100,
+      });
+
+     
+      const navbar = document.querySelector(".navbar");
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 50) {
+          navbar.classList.add("navbar-scrolled");
+        } else {
+          navbar.classList.remove("navbar-scrolled");
+        }
+      });
+
+     
+      var typed = new Typed(".typed", {
+        strings: [
+          "Üdvözlünk az f(xit)-ben!^1000",
+          "Ahol a matek életre kel!^1000",
+          "Deriválás, Integrálás, Animációk...^1000"
+        ],
+        typeSpeed: 50,
+        backSpeed: 30,
+        startDelay: 300,
+        backDelay: 1000,
+        loop: true,
       });
     </script>
   </body>
