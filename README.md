@@ -5,7 +5,7 @@ Főbb funkciók
 
 ### Függvény rajzolás:
 
-    Támogatottak a hagyományos függvények, sőt polár függvények is (az "isPolar" opció bekapcsolásával).
+***Támogatottak a hagyományos függvények, sőt polár függvények is (az "isPolar" opció bekapcsolásával).***
 
 ### Animáció:
 
