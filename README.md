@@ -9,7 +9,7 @@ Főbb funkciók
 
 ### Animáció:
 
-    Az alkalmazás képes animálni olyan függvényeket, amelyekben szerepel a t változó. Az animáció során a t értéke folyamatosan változik, így a függvény grafikonja dinamikusan módosul.
+***Az alkalmazás képes animálni olyan függvényeket, amelyekben szerepel a t változó. Az animáció során a t értéke folyamatosan változik, így a függvény grafikonja dinamikusan módosul.***
 
 ### Derivált és tangent vonal:
 
