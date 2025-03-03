@@ -177,6 +177,7 @@ class ComplexGeometryPanel : JPanel() {
                             val poly = selectedShape as PolygonShape
                             dragOffset = Point(e.x - poly.points.first().x, e.y - poly.points.first().y)
                         }
+                        else -> "Ismeretlen alakzat"
                     }
                 }
                 repaint()
@@ -209,7 +210,9 @@ class ComplexGeometryPanel : JPanel() {
                             for (i in shape.points.indices) {
                                 shape.points[i] = Point(shape.points[i].x + dx, shape.points[i].y + dy)
                             }
-                        }
+                        } else -> {
+                        "Nincs kiválasztott alakzat."
+                    }
                     }
                     repaint()
                 }
