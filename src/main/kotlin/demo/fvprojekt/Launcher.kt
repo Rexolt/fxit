@@ -25,13 +25,13 @@ class LauncherFrame : JFrame("f(xit) Launcher") {
         setSize(500, 150)
         setLocationRelativeTo(null)
 
-        // 1x4 grid layout panel: 1 sor, 4 oszlop, 10px hézaggal
+
         val gridPanel = JPanel(GridLayout(1, 4, 10, 10)).apply {
             border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
             background = UIManager.getColor("Panel.background")
         }
 
-        // Launch Application gomb
+
         val launchButton = RoundedButton("Launch Application").apply {
             preferredSize = Dimension(100, 40)
             addActionListener {
@@ -43,7 +43,7 @@ class LauncherFrame : JFrame("f(xit) Launcher") {
             }
         }
 
-        // Settings gomb
+
         val settingsButton = RoundedButton("Settings").apply {
             preferredSize = Dimension(100, 40)
             addActionListener {
@@ -56,7 +56,7 @@ class LauncherFrame : JFrame("f(xit) Launcher") {
             }
         }
 
-        // About gomb
+
         val aboutButton = RoundedButton("About").apply {
             preferredSize = Dimension(100, 40)
             addActionListener {
@@ -69,7 +69,7 @@ class LauncherFrame : JFrame("f(xit) Launcher") {
             }
         }
 
-        // Függvény Rajzoló gomb
+
         val functionGrapherButton = RoundedButton("Függvény Rajzoló").apply {
             preferredSize = Dimension(100, 40)
             addActionListener {
@@ -91,7 +91,7 @@ class LauncherFrame : JFrame("f(xit) Launcher") {
     }
 }
 
-// Egyedi, lekerekített gomb osztály
+
 class RoundedButton(text: String) : JButton(text) {
     init {
         isContentAreaFilled = false
