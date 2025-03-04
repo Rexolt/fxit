@@ -2,6 +2,7 @@ import com.formdev.flatlaf.FlatDarkLaf
 import java.awt.*
 import java.awt.event.*
 import java.awt.image.BufferedImage
+import java.io.File
 import javax.imageio.ImageIO
 import javax.swing.*
 import kotlin.math.*
@@ -47,7 +48,6 @@ data class Circle(
     }
 }
 
-// Téglalap
 data class RectangleShape(
     var topLeft: Point,
     var width: Double,
@@ -81,7 +81,6 @@ data class RectangleShape(
     }
 }
 
-// Háromszög
 data class TriangleShape(
     var p1: Point,
     var p2: Point,
@@ -132,18 +131,6 @@ data class TriangleShape(
         val hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0)
         val hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0)
         return !(hasNeg && hasPos)
-    }
-
-    fun angles(): Triple<Double, Double, Double> {
-        fun distance(a: Point, b: Point) =
-            sqrt(((a.x - b.x).toDouble()).pow(2) + ((a.y - b.y).toDouble()).pow(2))
-        val a = distance(p2, p3)
-        val b = distance(p1, p3)
-        val c = distance(p1, p2)
-        val angleA = acos(((b*b + c*c - a*a) / (2*b*c)).coerceIn(-1.0, 1.0)) * 180 / Math.PI
-        val angleB = acos(((a*a + c*c - b*b) / (2*a*c)).coerceIn(-1.0, 1.0)) * 180 / Math.PI
-        val angleC = 180 - angleA - angleB
-        return Triple(angleA, angleB, angleC)
     }
 }
 
@@ -209,31 +196,151 @@ data class PolygonShape(
         }
         return result
     }
+}
 
-    fun angles(): List<Double> {
-        val angles = mutableListOf<Double>()
-        for (i in points.indices) {
-            val prev = points[(i - 1 + points.size) % points.size]
-            val current = points[i]
-            val next = points[(i + 1) % points.size]
-            angles.add(angleBetween(prev, current, next))
+data class SegmentShape(
+    var p1: Point,
+    var p2: Point,
+    override var color: Color = Color.LIGHT_GRAY,
+    override var isSelected: Boolean = false
+) : GeometryShape(color, isSelected) {
+
+    override fun draw(g: Graphics2D) {
+        g.color = color
+        g.stroke = BasicStroke(2f)
+        g.drawLine(p1.x, p1.y, p2.x, p2.y)
+        if (isSelected) {
+            g.color = Color.RED
+            g.fillOval(p1.x - 3, p1.y - 3, 6, 6)
+            g.fillOval(p2.x - 3, p2.y - 3, 6, 6)
         }
-        return angles
     }
 
-    private fun angleBetween(a: Point, b: Point, c: Point): Double {
-        val ab = Point(b.x - a.x, b.y - a.y)
-        val cb = Point(b.x - c.x, b.y - c.y)
-        val dot = ab.x * cb.x + ab.y * cb.y
-        val magAB = sqrt(ab.x.toDouble().pow(2) + ab.y.toDouble().pow(2))
-        val magCB = sqrt(cb.x.toDouble().pow(2) + cb.y.toDouble().pow(2))
-        return acos((dot / (magAB * magCB)).coerceIn(-1.0, 1.0)) * 180 / Math.PI
+    override fun area() = 0.0
+    override fun perimeter() = p1.distance(p2)
+
+    override fun contains(point: Point): Boolean {
+
+        val dist = distanceToSegment(point, p1, p2)
+        return dist < 5.0
+    }
+
+    private fun distanceToSegment(p: Point, v: Point, w: Point): Double {
+        val l2 = (v.distanceSq(w))
+        if (l2 == 0.0) return p.distance(v)
+        var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2
+        t = t.coerceIn(0.0, 1.0)
+        val projX = v.x + t * (w.x - v.x)
+        val projY = v.y + t * (w.y - v.y)
+        return sqrt((p.x - projX).pow(2) + (p.y - projY).pow(2))
     }
 }
 
+
+data class RayShape(
+    var start: Point,
+    var direction: Point,
+    override var color: Color = Color.MAGENTA,
+    override var isSelected: Boolean = false
+) : GeometryShape(color, isSelected) {
+
+    override fun draw(g: Graphics2D) {
+        g.color = color
+        g.stroke = BasicStroke(2f)
+        val length = 1000
+        val dx = direction.x - start.x
+        val dy = direction.y - start.y
+        val mag = sqrt((dx * dx + dy * dy).toDouble())
+        if (mag == 0.0) return
+        val ex = (start.x + (dx / mag * length)).toInt()
+        val ey = (start.y + (dy / mag * length)).toInt()
+        g.drawLine(start.x, start.y, ex, ey)
+        if (isSelected) {
+            g.color = Color.RED
+            g.fillOval(start.x - 3, start.y - 3, 6, 6)
+            g.fillOval(direction.x - 3, direction.y - 3, 6, 6)
+        }
+    }
+
+    override fun area() = 0.0
+    override fun perimeter() = -1.0
+    override fun contains(point: Point): Boolean {
+        val dx = direction.x - start.x
+        val dy = direction.y - start.y
+        val mag = sqrt((dx * dx + dy * dy).toDouble())
+        if (mag == 0.0) return false
+        val t = ((point.x - start.x) * dx + (point.y - start.y) * dy) / (mag * mag)
+        if (t < 0) return false
+        val projX = start.x + t * dx
+        val projY = start.y + t * dy
+        val distance = sqrt((point.x - projX).pow(2) + (point.y - projY).pow(2))
+        return distance < 5.0
+    }
+}
+
+data class LineShape(
+    var p1: Point,
+    var p2: Point,
+    override var color: Color = Color.GRAY,
+    override var isSelected: Boolean = false
+) : GeometryShape(color, isSelected) {
+
+    override fun draw(g: Graphics2D) {
+        g.color = color
+        g.stroke = BasicStroke(2f)
+        val length = 1000
+        val dx = p2.x - p1.x
+        val dy = p2.y - p1.y
+        val mag = sqrt((dx * dx + dy * dy).toDouble())
+        if (mag == 0.0) return
+        val normX = dx / mag
+        val normY = dy / mag
+        val startX = (p1.x - normX * length).toInt()
+        val startY = (p1.y - normY * length).toInt()
+        val endX = (p1.x + normX * length).toInt()
+        val endY = (p1.y + normY * length).toInt()
+        g.drawLine(startX, startY, endX, endY)
+        if (isSelected) {
+            g.color = Color.RED
+            g.fillOval(p1.x - 3, p1.y - 3, 6, 6)
+            g.fillOval(p2.x - 3, p2.y - 3, 6, 6)
+        }
+    }
+
+    override fun area() = 0.0
+    override fun perimeter() = -1.0
+    override fun contains(point: Point): Boolean {
+        val dx = p2.x - p1.x
+        val dy = p2.y - p1.y
+        val mag = sqrt((dx * dx + dy * dy).toDouble())
+        if (mag == 0.0) return false
+        val distance = abs(dy * point.x - dx * point.y + p2.x * p1.y - p2.y * p1.x) / mag
+        return distance < 5.0
+    }
+}
+
+
+enum class Tool {
+    SELECT,
+    ADD_CIRCLE,
+    ADD_RECTANGLE,
+    ADD_TRIANGLE,
+    ADD_POLYGON,
+    ADD_SEGMENT,
+    ADD_RAY,
+    ADD_LINE
+}
+
+// A rajzoló panel, ahol a geometriai elemek kezelése történik
 class ComplexGeometryPanel : JPanel() {
     val shapes = mutableListOf<GeometryShape>()
     var selectedShape: GeometryShape? = null
+
+    var currentTool: Tool = Tool.SELECT
+
+    val tempPoints = mutableListOf<Point>()
+    var currentMousePos: Point? = null
+
     private var dragOffset = Point(0, 0)
 
     init {
@@ -241,30 +348,56 @@ class ComplexGeometryPanel : JPanel() {
 
         addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent) {
-                selectedShape = shapes.reversed().find { it.contains(e.point) }
-                shapes.forEach { it.isSelected = false }
-                selectedShape?.isSelected = true
-                if (selectedShape != null) {
-                    when (selectedShape) {
-                        is Circle -> {
-                            val circle = selectedShape as Circle
-                            dragOffset = Point(e.x - circle.center.x, e.y - circle.center.y)
+                if (currentTool == Tool.SELECT) {
+                    selectedShape = shapes.reversed().find { it.contains(e.point) }
+                    shapes.forEach { it.isSelected = false }
+                    selectedShape?.isSelected = true
+                    selectedShape?.let { shape ->
+                        when (shape) {
+                            is Circle -> {
+                                dragOffset = Point(e.x - shape.center.x, e.y - shape.center.y)
+                            }
+                            is RectangleShape -> {
+                                dragOffset = Point(e.x - shape.topLeft.x, e.y - shape.topLeft.y)
+                            }
+                            is TriangleShape -> {
+                                dragOffset = Point(e.x - shape.p1.x, e.y - shape.p1.y)
+                            }
+                            is PolygonShape -> {
+                                dragOffset = Point(e.x - shape.points.first().x, e.y - shape.points.first().y)
+                            }
+                            is SegmentShape -> {
+                                dragOffset = Point(e.x - shape.p1.x, e.y - shape.p1.y)
+                            }
+                            is RayShape -> {
+                                dragOffset = Point(e.x - shape.start.x, e.y - shape.start.y)
+                            }
+                            is LineShape -> {
+                                dragOffset = Point(e.x - shape.p1.x, e.y - shape.p1.y)
+                            }
                         }
-                        is RectangleShape -> {
-                            val rect = selectedShape as RectangleShape
-                            dragOffset = Point(e.x - rect.topLeft.x, e.y - rect.topLeft.y)
+                    }
+                    repaint()
+                } else {
+                    // DRAW mód: pontok rögzítése az aktuális eszközhöz
+                    tempPoints.add(e.point)
+                    // Ha a szükséges pontszám teljes, létrehozzuk az alakzatot
+                    when (currentTool) {
+                        Tool.ADD_CIRCLE -> if (tempPoints.size == 2) finishDrawing()
+                        Tool.ADD_RECTANGLE -> if (tempPoints.size == 2) finishDrawing()
+                        Tool.ADD_TRIANGLE -> if (tempPoints.size == 3) finishDrawing()
+                        Tool.ADD_SEGMENT -> if (tempPoints.size == 2) finishDrawing()
+                        Tool.ADD_RAY -> if (tempPoints.size == 2) finishDrawing()
+                        Tool.ADD_LINE -> if (tempPoints.size == 2) finishDrawing()
+                        Tool.ADD_POLYGON -> {
+                            // Polygon: dupla kattintásra zárjuk le az alakzatot
+                            if (e.clickCount == 2 && tempPoints.size > 2) {
+                                finishDrawing()
+                            }
                         }
-                        is TriangleShape -> {
-                            val tri = selectedShape as TriangleShape
-                            dragOffset = Point(e.x - tri.p1.x, e.y - tri.p1.y)
-                        }
-                        is PolygonShape -> {
-                            val poly = selectedShape as PolygonShape
-                            dragOffset = Point(e.x - poly.points.first().x, e.y - poly.points.first().y)
-                        }else -> "Ismeretlen alakzat"
+                        else -> {}
                     }
                 }
-                repaint()
             }
 
             override fun mouseReleased(e: MouseEvent) {
@@ -274,31 +407,60 @@ class ComplexGeometryPanel : JPanel() {
 
         addMouseMotionListener(object : MouseAdapter() {
             override fun mouseDragged(e: MouseEvent) {
-                selectedShape?.let { shape ->
-                    when (shape) {
-                        is Circle -> {
-                            shape.center = Point(e.x - dragOffset.x, e.y - dragOffset.y)
-                        }
-                        is RectangleShape -> {
-                            shape.topLeft = Point(e.x - dragOffset.x, e.y - dragOffset.y)
-                        }
-                        is TriangleShape -> {
-                            val dx = e.x - dragOffset.x - shape.p1.x
-                            val dy = e.y - dragOffset.y - shape.p1.y
-                            shape.p1 = Point(shape.p1.x + dx, shape.p1.y + dy)
-                            shape.p2 = Point(shape.p2.x + dx, shape.p2.y + dy)
-                            shape.p3 = Point(shape.p3.x + dx, shape.p3.y + dy)
-                        }
-                        is PolygonShape -> {
-                            val dx = e.x - dragOffset.x - shape.points.first().x
-                            val dy = e.y - dragOffset.y - shape.points.first().y
-                            for (i in shape.points.indices) {
-                                shape.points[i] = Point(shape.points[i].x + dx, shape.points[i].y + dy)
+                if (currentTool == Tool.SELECT) {
+                    selectedShape?.let { shape ->
+                        when (shape) {
+                            is Circle -> {
+                                shape.center = Point(e.x - dragOffset.x, e.y - dragOffset.y)
                             }
-                        } else ->{
-                        "Nincs kiválasztott alakzat."
+                            is RectangleShape -> {
+                                shape.topLeft = Point(e.x - dragOffset.x, e.y - dragOffset.y)
+                            }
+                            is TriangleShape -> {
+                                val dx = e.x - dragOffset.x - shape.p1.x
+                                val dy = e.y - dragOffset.y - shape.p1.y
+                                shape.p1 = Point(shape.p1.x + dx, shape.p1.y + dy)
+                                shape.p2 = Point(shape.p2.x + dx, shape.p2.y + dy)
+                                shape.p3 = Point(shape.p3.x + dx, shape.p3.y + dy)
+                            }
+                            is PolygonShape -> {
+                                val dx = e.x - dragOffset.x - shape.points.first().x
+                                val dy = e.y - dragOffset.y - shape.points.first().y
+                                for (i in shape.points.indices) {
+                                    shape.points[i] = Point(shape.points[i].x + dx, shape.points[i].y + dy)
+                                }
+                            }
+                            is SegmentShape -> {
+                                val dx = e.x - dragOffset.x - shape.p1.x
+                                val dy = e.y - dragOffset.y - shape.p1.y
+                                shape.p1 = Point(shape.p1.x + dx, shape.p1.y + dy)
+                                shape.p2 = Point(shape.p2.x + dx, shape.p2.y + dy)
+                            }
+                            is RayShape -> {
+                                val dx = e.x - dragOffset.x - shape.start.x
+                                val dy = e.y - dragOffset.y - shape.start.y
+                                shape.start = Point(shape.start.x + dx, shape.start.y + dy)
+                                shape.direction = Point(shape.direction.x + dx, shape.direction.y + dy)
+                            }
+                            is LineShape -> {
+                                val dx = e.x - dragOffset.x - shape.p1.x
+                                val dy = e.y - dragOffset.y - shape.p1.y
+                                shape.p1 = Point(shape.p1.x + dx, shape.p1.y + dy)
+                                shape.p2 = Point(shape.p2.x + dx, shape.p2.y + dy)
+                            }
+                        }
                     }
-                    }
+                    repaint()
+                } else {
+                    // DRAW mód: követjük az egér aktuális pozícióját az előnézethez
+                    currentMousePos = e.point
+                    repaint()
+                }
+            }
+
+            override fun mouseMoved(e: MouseEvent) {
+                if (currentTool != Tool.SELECT) {
+                    currentMousePos = e.point
                     repaint()
                 }
             }
@@ -312,9 +474,8 @@ class ComplexGeometryPanel : JPanel() {
         val g2 = g as Graphics2D
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
         drawGrid(g2)
-        for (shape in shapes) {
-            shape.draw(g2)
-        }
+        shapes.forEach { it.draw(g2) }
+        drawTempShape(g2)
     }
 
     private fun drawGrid(g2: Graphics2D) {
@@ -327,9 +488,88 @@ class ComplexGeometryPanel : JPanel() {
             g2.drawLine(0, y, width, y)
         }
     }
+
+    private fun drawTempShape(g2: Graphics2D) {
+        if (tempPoints.isEmpty()) return
+        g2.color = Color.YELLOW
+        tempPoints.forEach { point ->
+            g2.fillOval(point.x - 3, point.y - 3, 6, 6)
+        }
+        val previewPoints = mutableListOf<Point>().apply {
+            addAll(tempPoints)
+            currentMousePos?.let { add(it) }
+        }
+        when (currentTool) {
+            Tool.ADD_CIRCLE, Tool.ADD_RECTANGLE, Tool.ADD_SEGMENT, Tool.ADD_RAY, Tool.ADD_LINE -> {
+                if (previewPoints.size >= 2) {
+                    g2.drawLine(previewPoints.first().x, previewPoints.first().y,
+                        previewPoints.last().x, previewPoints.last().y)
+                }
+            }
+            Tool.ADD_TRIANGLE -> {
+                if (previewPoints.size >= 2) {
+                    for (i in 0 until previewPoints.size - 1) {
+                        g2.drawLine(previewPoints[i].x, previewPoints[i].y,
+                            previewPoints[i + 1].x, previewPoints[i + 1].y)
+                    }
+                }
+            }
+            Tool.ADD_POLYGON -> {
+                if (previewPoints.size >= 2) {
+                    for (i in 0 until previewPoints.size - 1) {
+                        g2.drawLine(previewPoints[i].x, previewPoints[i].y,
+                            previewPoints[i + 1].x, previewPoints[i + 1].y)
+                    }
+                }
+            }
+
+            else -> {}
+        }
+    }
+
+
+    private fun finishDrawing() {
+        when (currentTool) {
+            Tool.ADD_CIRCLE -> {
+                val center = tempPoints[0]
+                val edge = tempPoints[1]
+                val radius = center.distance(edge)
+                shapes.add(Circle(center, radius))
+            }
+            Tool.ADD_RECTANGLE -> {
+                val p1 = tempPoints[0]
+                val p2 = tempPoints[1]
+                val topLeft = Point(min(p1.x, p2.x), min(p1.y, p2.y))
+                val width = abs(p2.x - p1.x).toDouble()
+                val height = abs(p2.y - p1.y).toDouble()
+                shapes.add(RectangleShape(topLeft, width, height))
+            }
+            Tool.ADD_TRIANGLE -> {
+                shapes.add(TriangleShape(tempPoints[0], tempPoints[1], tempPoints[2]))
+            }
+            Tool.ADD_POLYGON -> {
+                shapes.add(PolygonShape(tempPoints.toMutableList()))
+            }
+            Tool.ADD_SEGMENT -> {
+                shapes.add(SegmentShape(tempPoints[0], tempPoints[1]))
+            }
+            Tool.ADD_RAY -> {
+                shapes.add(RayShape(tempPoints[0], tempPoints[1]))
+            }
+            Tool.ADD_LINE -> {
+                shapes.add(LineShape(tempPoints[0], tempPoints[1]))
+            }
+            else -> {}
+        }
+        tempPoints.clear()
+        currentMousePos = null
+        repaint()
+    }
 }
 
-class ComplexGeometryFrame : JFrame("F(xit) Geo") {
+private fun IntRange.dropLast(i: Int) {}
+
+class ComplexGeometryFrame : JFrame("F(xit) Geo – Komplex Eszköztár") {
     private val geometryPanel = ComplexGeometryPanel()
     private val propertiesText = JTextArea(10, 20).apply {
         isEditable = false
@@ -346,117 +586,74 @@ class ComplexGeometryFrame : JFrame("F(xit) Geo") {
 
         val toolBar = JToolBar().apply { isFloatable = false }
 
-        val btnAddCircle = JButton(ImageIcon(javaClass.getResource("/icons/circle.png"))).apply {
-            toolTipText = "Kör hozzáadása"
+        val btnSelect = JButton("Kiválasztás").apply {
+            toolTipText = "Alakzatok kiválasztása és mozgatása"
             addActionListener {
-                geometryPanel.shapes.add(
-                    Circle(Point(geometryPanel.width / 2, geometryPanel.height / 2), 50.0)
-                )
-                geometryPanel.repaint()
+                geometryPanel.currentTool = Tool.SELECT
+                geometryPanel.tempPoints.clear()
             }
         }
-        val btnAddRectangle = JButton(ImageIcon(javaClass.getResource("/icons/rectangle.png"))).apply {
-            toolTipText = "Téglalap hozzáadása"
+        val btnCircle = JButton(ImageIcon(javaClass.getResource("/icons/circle.png"))).apply {
+            toolTipText = "Kör rajzolása (Körző)"
             addActionListener {
-                geometryPanel.shapes.add(
-                    RectangleShape(Point(100, 100), 120.0, 80.0)
-                )
-                geometryPanel.repaint()
+                geometryPanel.currentTool = Tool.ADD_CIRCLE
+                geometryPanel.tempPoints.clear()
             }
         }
-        val btnAddTriangle = JButton(ImageIcon(javaClass.getResource("/icons/triangle.png"))).apply {
-            toolTipText = "Háromszög hozzáadása"
+        val btnRectangle = JButton(ImageIcon(javaClass.getResource("/icons/rectangle.png"))).apply {
+            toolTipText = "Téglalap rajzolása"
             addActionListener {
-                geometryPanel.shapes.add(
-                    TriangleShape(Point(200, 200), Point(250, 300), Point(150, 300))
-                )
-                geometryPanel.repaint()
+                geometryPanel.currentTool = Tool.ADD_RECTANGLE
+                geometryPanel.tempPoints.clear()
             }
-        }
-        val btnAddPolygon = JButton(ImageIcon(javaClass.getResource("/icons/polygon.png"))).apply {
-            toolTipText = "Sokszög hozzáadása"
-            addActionListener {
-                val center = Point(geometryPanel.width / 2, geometryPanel.height / 2)
-                val points = mutableListOf<Point>()
-                val sides = 5
-                val radius = 60
-                for (i in 0 until sides) {
-                    val angle = Math.toRadians((360.0 / sides * i) - 90)
-                    val x = center.x + (radius * cos(angle)).toInt()
-                    val y = center.y + (radius * sin(angle)).toInt()
-                    points.add(Point(x, y))
-                }
-                geometryPanel.shapes.add(PolygonShape(points))
-                geometryPanel.repaint()
-            }
-        }
-        val btnEdit = JButton("Szerkesztés").apply {
-            toolTipText = "Kiválasztott alakzat szerkesztése"
-            addActionListener {
-                val s = geometryPanel.selectedShape
-                if (s is Circle) {
-                    val centerX = JOptionPane.showInputDialog(this, "Középpont X:", s.center.x)?.toIntOrNull() ?: s.center.x
-                    val centerY = JOptionPane.showInputDialog(this, "Középpont Y:", s.center.y)?.toIntOrNull() ?: s.center.y
-                    val radius = JOptionPane.showInputDialog(this, "Sugár:", s.radius)?.toDoubleOrNull() ?: s.radius
-                    s.center = Point(centerX, centerY)
-                    s.radius = radius
-                } else if (s is RectangleShape) {
-                    val x = JOptionPane.showInputDialog(this, "Bal felső X:", s.topLeft.x)?.toIntOrNull() ?: s.topLeft.x
-                    val y = JOptionPane.showInputDialog(this, "Bal felső Y:", s.topLeft.y)?.toIntOrNull() ?: s.topLeft.y
-                    val width = JOptionPane.showInputDialog(this, "Szélesség:", s.width)?.toDoubleOrNull() ?: s.width
-                    val height = JOptionPane.showInputDialog(this, "Magasság:", s.height)?.toDoubleOrNull() ?: s.height
-                    s.topLeft = Point(x, y)
-                    s.width = width
-                    s.height = height
-                } else if (s is TriangleShape) {
-                    val p1x = JOptionPane.showInputDialog(this, "P1 X:", s.p1.x)?.toIntOrNull() ?: s.p1.x
-                    val p1y = JOptionPane.showInputDialog(this, "P1 Y:", s.p1.y)?.toIntOrNull() ?: s.p1.y
-                    val p2x = JOptionPane.showInputDialog(this, "P2 X:", s.p2.x)?.toIntOrNull() ?: s.p2.x
-                    val p2y = JOptionPane.showInputDialog(this, "P2 Y:", s.p2.y)?.toIntOrNull() ?: s.p2.y
-                    val p3x = JOptionPane.showInputDialog(this, "P3 X:", s.p3.x)?.toIntOrNull() ?: s.p3.x
-                    val p3y = JOptionPane.showInputDialog(this, "P3 Y:", s.p3.y)?.toIntOrNull() ?: s.p3.y
-                    s.p1 = Point(p1x, p1y)
-                    s.p2 = Point(p2x, p2y)
-                    s.p3 = Point(p3x, p3y)
-                } else {
-                    JOptionPane.showMessageDialog(this, "Ez a forma nem szerkeszthető vagy nem támogatott.")
-                }
-                geometryPanel.repaint()
-            }
-        }
-        val btnAngles = JButton("Szögek").apply {
-            toolTipText = "Kiválasztott háromszög vagy sokszög szögeinek számítása"
-            addActionListener {
-                val s = geometryPanel.selectedShape
-                if (s is TriangleShape) {
-                    val (a, b, c) = s.angles()
-                    JOptionPane.showMessageDialog(
-                        this,
-                        "Szögek: ${"%.2f".format(a)}°, ${"%.2f".format(b)}°, ${"%.2f".format(c)}°"
-                    )
-                } else if (s is PolygonShape) {
-                    val angles = s.angles()
-                    JOptionPane.showMessageDialog(
-                        this,
-                        "Szögek: ${angles.joinToString(", ") { "%.2f".format(it) + "°" }}"
-                    )
-                } else {
-                    JOptionPane.showMessageDialog(this, "A kiválasztott alakzathoz nem számolható szög.")
-                }
-            }
-        }
-        val btnExport = JButton(ImageIcon(javaClass.getResource("/icons/export.png"))).apply {
-            toolTipText = "Exportálás PNG formátumban"
-            addActionListener { exportPanel() }
         }
 
-        toolBar.add(btnAddCircle)
-        toolBar.add(btnAddRectangle)
-        toolBar.add(btnAddTriangle)
-        toolBar.add(btnAddPolygon)
-        toolBar.add(btnEdit)
-        toolBar.add(btnAngles)
-        toolBar.add(btnExport)
+        val btnTriangle = JButton(ImageIcon(javaClass.getResource("/icons/triangle.png"))).apply {
+            toolTipText = "Háromszög rajzolása"
+            addActionListener {
+                geometryPanel.currentTool = Tool.ADD_TRIANGLE
+                geometryPanel.tempPoints.clear()
+            }
+        }
+
+        val btnPolygon = JButton(ImageIcon(javaClass.getResource("/icons/polygon.png"))).apply {
+            toolTipText = "Sokszög rajzolása (dupla kattintás a lezáráshoz)"
+            addActionListener {
+                geometryPanel.currentTool = Tool.ADD_POLYGON
+                geometryPanel.tempPoints.clear()
+            }
+        }
+
+        val btnSegment = JButton("Szakasz").apply {
+            toolTipText = "Szakasz rajzolása"
+            addActionListener {
+                geometryPanel.currentTool = Tool.ADD_SEGMENT
+                geometryPanel.tempPoints.clear()
+            }
+        }
+        val btnRay = JButton("Félegyenes").apply {
+            toolTipText = "Félegyenes rajzolása"
+            addActionListener {
+                geometryPanel.currentTool = Tool.ADD_RAY
+                geometryPanel.tempPoints.clear()
+            }
+        }
+        val btnLine = JButton("Vonal").apply {
+            toolTipText = "Vonal rajzolása (végtelen egyenes)"
+            addActionListener {
+                geometryPanel.currentTool = Tool.ADD_LINE
+                geometryPanel.tempPoints.clear()
+            }
+        }
+
+        toolBar.add(btnSelect)
+        toolBar.add(btnCircle)
+        toolBar.add(btnRectangle)
+        toolBar.add(btnTriangle)
+        toolBar.add(btnPolygon)
+        toolBar.add(btnSegment)
+        toolBar.add(btnRay)
+        toolBar.add(btnLine)
 
         add(toolBar, BorderLayout.NORTH)
 
@@ -480,21 +677,34 @@ class ComplexGeometryFrame : JFrame("F(xit) Geo") {
                                 "Kerület: ${"%.2f".format(s.perimeter())}"
                     }
                     is TriangleShape -> {
-                        val (a, b, c) = s.angles()
                         "Háromszög\n" +
                                 "P1: (${s.p1.x}, ${s.p1.y})\n" +
                                 "P2: (${s.p2.x}, ${s.p2.y})\n" +
                                 "P3: (${s.p3.x}, ${s.p3.y})\n" +
-                                "Szögek: ${"%.2f".format(a)}°, ${"%.2f".format(b)}°, ${"%.2f".format(c)}°\n" +
                                 "Terület: ${"%.2f".format(s.area())}\n" +
                                 "Kerület: ${"%.2f".format(s.perimeter())}"
                     }
                     is PolygonShape -> {
                         "Sokszög\n" +
                                 "Pontok: ${s.points.joinToString { "(${it.x}, ${it.y})" }}\n" +
-                                "Szögek: ${s.angles().joinToString(", ") { "%.2f".format(it) + "°" }}\n" +
                                 "Terület: ${"%.2f".format(s.area())}\n" +
                                 "Kerület: ${"%.2f".format(s.perimeter())}"
+                    }
+                    is SegmentShape -> {
+                        "Szakasz\n" +
+                                "P1: (${s.p1.x}, ${s.p1.y})\n" +
+                                "P2: (${s.p2.x}, ${s.p2.y})\n" +
+                                "Hossz: ${"%.2f".format(s.perimeter())}"
+                    }
+                    is RayShape -> {
+                        "Félegyenes\n" +
+                                "Kezdőpont: (${s.start.x}, ${s.start.y})\n" +
+                                "Irány: (${s.direction.x - s.start.x}, ${s.direction.y - s.start.y})"
+                    }
+                    is LineShape -> {
+                        "Vonal\n" +
+                                "P1: (${s.p1.x}, ${s.p1.y})\n" +
+                                "P2: (${s.p2.x}, ${s.p2.y})"
                     }
                     else -> "Ismeretlen alakzat"
                 }
@@ -503,7 +713,7 @@ class ComplexGeometryFrame : JFrame("F(xit) Geo") {
             }
         }.start()
 
-        setSize(1100, 700)
+        setSize(1200, 800)
         setLocationRelativeTo(null)
     }
 
@@ -512,7 +722,7 @@ class ComplexGeometryFrame : JFrame("F(xit) Geo") {
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             var file = fileChooser.selectedFile
             if (!file.name.endsWith(".png")) {
-                file = file.parentFile.resolve(file.name + ".png")
+                file = File(file.parentFile, file.name + ".png")
             }
             val image = BufferedImage(geometryPanel.width, geometryPanel.height, BufferedImage.TYPE_INT_ARGB)
             val g = image.createGraphics()
