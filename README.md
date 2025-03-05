@@ -1,6 +1,7 @@
 # f(xit) Fügvény ábrázoló
 
 ### Figyelem! A projektben hamarosan újabb nagyobb volumenű Update-ok fognak megjelenni! 
+PL: Geometriai ábrázoló, web verzió javítása.
 
 **Ez a projekt egy interaktív grafikonrajzoló alkalmazás,** amely több matematikai és vizualizációs funkciót kínál. A programban függvények bevitele, rajzolása, animálása, deriváltak és integrálok számítása, valamint extra eszközök (például poligonmérés, marker és jegyzetelés) érhetők el.
 Főbb funkciók
