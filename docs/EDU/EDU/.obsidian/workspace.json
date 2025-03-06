@@ -13,29 +13,87 @@
             "state": {
               "type": "markdown",
               "state": {
+                "file": "Sík Geometria Alapfogalmak és Tételmondások.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Sík Geometria Alapfogalmak és Tételmondások"
+            }
+          },
+          {
+            "id": "53edfe352feff2e6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Tartalomjegyzék.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Tartalomjegyzék"
+            }
+          },
+          {
+            "id": "b21ac98692622b14",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
                 "file": "Deriválás és Integrálás.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
               "title": "Deriválás és Integrálás"
-            }
+            },
+            "group": "acd79e6c9cf1ac56"
           }
-        ]
+        ],
+        "currentTab": 2
       },
       {
-        "id": "c2c89b4e0de2d157",
+        "id": "d18771aec269ea84",
         "type": "tabs",
         "children": [
           {
-            "id": "b49a089b94381da6",
+            "id": "52c70dd8f5d630cd",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
+              "type": "localgraph",
+              "state": {
+                "file": "Deriválás és Integrálás.md",
+                "options": {
+                  "collapse-filter": true,
+                  "search": "",
+                  "localJumps": 1,
+                  "localBacklinks": true,
+                  "localForelinks": true,
+                  "localInterlinks": false,
+                  "showTags": false,
+                  "showAttachments": false,
+                  "hideUnresolved": false,
+                  "collapse-color-groups": true,
+                  "colorGroups": [],
+                  "collapse-display": true,
+                  "showArrow": false,
+                  "textFadeMultiplier": 0,
+                  "nodeSizeMultiplier": 1,
+                  "lineSizeMultiplier": 1,
+                  "collapse-forces": true,
+                  "centerStrength": 0.518713248970312,
+                  "repelStrength": 10,
+                  "linkStrength": 1,
+                  "linkDistance": 250,
+                  "scale": 0.7132754626224447,
+                  "close": false
+                }
+              },
               "icon": "lucide-git-fork",
-              "title": "Graph view"
-            }
+              "title": "Graph of Deriválás és Integrálás"
+            },
+            "group": "acd79e6c9cf1ac56"
           }
         ]
       }
@@ -184,13 +242,19 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "924026d7b35eba52",
+  "active": "b21ac98692622b14",
   "lastOpenFiles": [
+    "Tartalomjegyzék.md",
+    "Vissza a Tartalomjegyzékhez.md",
+    "Sík Geometria Alapfogalmak és Tételmondások.md",
+    "Összegzés és Továbbfejlesztési Lehetőségek.md",
+    "Számítási Módszerek a Sík Geometriában.md",
+    "Geometriai Szerkesztések és Haladó Tételmondások.md",
+    "Deriválás és Integrálás.md",
     "Bevezetés!.md",
     "Sorfejtések, Taylor-sorok és Fourier-sorok.md",
     "Görbék Elemzése és Optimalizáció.md",
     "Differenciálegyenletek.md",
-    "Deriválás és Integrálás.md",
     "Deriválás.md"
   ]
 }

@@ -1,9 +1,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"><url>
+    <loc>https://quartz.jzhao.xyz/Bevezet%C3%A9s!</loc>
+    <lastmod>2025-02-17T00:00:00.000Z</lastmod>
+  </url><url>
     <loc>https://quartz.jzhao.xyz/Deriv%C3%A1l%C3%A1s-%C3%A9s-Integr%C3%A1l%C3%A1s</loc>
     <lastmod>2025-02-17T00:00:00.000Z</lastmod>
   </url><url>
     <loc>https://quartz.jzhao.xyz/Differenci%C3%A1legyenletek</loc>
     <lastmod>2025-02-17T00:00:00.000Z</lastmod>
+  </url><url>
+    <loc>https://quartz.jzhao.xyz/Geometriai-Szerkeszt%C3%A9sek-%C3%A9s-Halad%C3%B3-T%C3%A9telmond%C3%A1sok</loc>
+    <lastmod>2025-03-06T20:02:35.862Z</lastmod>
   </url><url>
     <loc>https://quartz.jzhao.xyz/G%C3%B6rb%C3%A9k-Elemz%C3%A9se-%C3%A9s-Optimaliz%C3%A1ci%C3%B3</loc>
     <lastmod>2025-02-17T00:00:00.000Z</lastmod>
@@ -11,6 +17,18 @@
     <loc>https://quartz.jzhao.xyz/Sorfejt%C3%A9sek,-Taylor-sorok-%C3%A9s-Fourier-sorok</loc>
     <lastmod>2025-02-17T00:00:00.000Z</lastmod>
   </url><url>
+    <loc>https://quartz.jzhao.xyz/Sz%C3%A1m%C3%ADt%C3%A1si-M%C3%B3dszerek-a-S%C3%ADk-Geometri%C3%A1ban</loc>
+    <lastmod>2025-03-06T20:02:35.878Z</lastmod>
+  </url><url>
+    <loc>https://quartz.jzhao.xyz/S%C3%ADk-Geometria-Alapfogalmak-%C3%A9s-T%C3%A9telmond%C3%A1sok</loc>
+    <lastmod>2025-03-06T20:02:35.871Z</lastmod>
+  </url><url>
+    <loc>https://quartz.jzhao.xyz/Tartalomjegyz%C3%A9k</loc>
+    <lastmod>2025-03-06T20:02:35.880Z</lastmod>
+  </url><url>
     <loc>https://quartz.jzhao.xyz/</loc>
-    <lastmod>2025-02-17T00:00:00.000Z</lastmod>
+    <lastmod>2025-02-17T17:28:22.586Z</lastmod>
+  </url><url>
+    <loc>https://quartz.jzhao.xyz/%C3%96sszegz%C3%A9s-%C3%A9s-Tov%C3%A1bbfejleszt%C3%A9si-Lehet%C5%91s%C3%A9gek</loc>
+    <lastmod>2025-03-06T20:02:35.869Z</lastmod>
   </url></urlset>

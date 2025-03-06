@@ -6,6 +6,48 @@
       <description>Last 10 notes on 🪴 Quartz 4.0</description>
       <generator>Quartz -- quartz.jzhao.xyz</generator>
       <item>
+    <title>Tartalomjegyzék</title>
+    <link>https://quartz.jzhao.xyz/Tartalomjegyz%C3%A9k</link>
+    <guid>https://quartz.jzhao.xyz/Tartalomjegyz%C3%A9k</guid>
+    <description>...</description>
+    <pubDate>Thu, 06 Mar 2025 20:02:35 GMT</pubDate>
+  </item><item>
+    <title>Számítási Módszerek a Sík Geometriában</title>
+    <link>https://quartz.jzhao.xyz/Sz%C3%A1m%C3%ADt%C3%A1si-M%C3%B3dszerek-a-S%C3%ADk-Geometri%C3%A1ban</link>
+    <guid>https://quartz.jzhao.xyz/Sz%C3%A1m%C3%ADt%C3%A1si-M%C3%B3dszerek-a-S%C3%ADk-Geometri%C3%A1ban</guid>
+    <description>Ebben a fejezetben a sík geometriában alkalmazott számítási módszereket mutatjuk be. Ezek az analitikus eszközök lehetővé teszik, hogy algebrai egyenletek segítségével vizsgáljuk a geometriai alakzatok tulajdonságait, megoldjuk a problémákat és bizonyítsuk a tételmondásokat.</description>
+    <pubDate>Thu, 06 Mar 2025 20:02:35 GMT</pubDate>
+  </item><item>
+    <title>Sík Geometria Alapfogalmak és Tételmondások</title>
+    <link>https://quartz.jzhao.xyz/S%C3%ADk-Geometria-Alapfogalmak-%C3%A9s-T%C3%A9telmond%C3%A1sok</link>
+    <guid>https://quartz.jzhao.xyz/S%C3%ADk-Geometria-Alapfogalmak-%C3%A9s-T%C3%A9telmond%C3%A1sok</guid>
+    <description>Ebben a fejezetben a sík geometria alapfogalmaival ismerkedünk meg. Megvizsgáljuk a pontokat, egyeneseket, szögeket, háromszögeket, négyszögeket és a köröket, valamint az ezekhez kapcsolódó fontos tételmondásokat.</description>
+    <pubDate>Thu, 06 Mar 2025 20:02:35 GMT</pubDate>
+  </item><item>
+    <title>Összegzés és Továbbfejlesztési Lehetőségek</title>
+    <link>https://quartz.jzhao.xyz/%C3%96sszegz%C3%A9s-%C3%A9s-Tov%C3%A1bbfejleszt%C3%A9si-Lehet%C5%91s%C3%A9gek</link>
+    <guid>https://quartz.jzhao.xyz/%C3%96sszegz%C3%A9s-%C3%A9s-Tov%C3%A1bbfejleszt%C3%A9si-Lehet%C5%91s%C3%A9gek</guid>
+    <description>Ebben a záró fejezetben áttekintjük a sík geometria legfontosabb témáit, és javaslatokat adunk a további elmélyüléshez, kutatási irányokhoz. Összegzés Az előző fejezetekben részletesen megismertük: Alapfogalmak és Tételmondások: A sík geometria alapvető elemeit (pont, egyenes, sík) és azok kapcsolatát.</description>
+    <pubDate>Thu, 06 Mar 2025 20:02:35 GMT</pubDate>
+  </item><item>
+    <title>Geometriai Szerkesztések és Haladó Tételmondások</title>
+    <link>https://quartz.jzhao.xyz/Geometriai-Szerkeszt%C3%A9sek-%C3%A9s-Halad%C3%B3-T%C3%A9telmond%C3%A1sok</link>
+    <guid>https://quartz.jzhao.xyz/Geometriai-Szerkeszt%C3%A9sek-%C3%A9s-Halad%C3%B3-T%C3%A9telmond%C3%A1sok</guid>
+    <description>Ebben a fejezetben a geometriai szerkesztések módszereit és a haladóbb tételmondásokat ismerjük meg. A geometriai szerkesztések során kizárólag körző és vonalzó segítségével készítünk pontok, egyenesek, szögek és síkidomok szerkesztéseit, míg a haladó tételmondások mélyebb összefüggéseket tárnak fel a síkgeometria világában.</description>
+    <pubDate>Thu, 06 Mar 2025 20:02:35 GMT</pubDate>
+  </item><item>
+    <title>Tartalomjegyzék</title>
+    <link>https://quartz.jzhao.xyz/</link>
+    <guid>https://quartz.jzhao.xyz/</guid>
+    <description>...</description>
+    <pubDate>Mon, 17 Feb 2025 17:28:22 GMT</pubDate>
+  </item><item>
+    <title>Bevezetés a Matematikai Függvények Világába</title>
+    <link>https://quartz.jzhao.xyz/Bevezet%C3%A9s!</link>
+    <guid>https://quartz.jzhao.xyz/Bevezet%C3%A9s!</guid>
+    <description>Bevezetés a Matematikai Függvények Világába Üdvözlünk a matematikai függvények oktatóanyagában! Ebben a könyvtárban célunk, hogy bemutassuk a függvények alapjait, típusait ...</description>
+    <pubDate>Mon, 17 Feb 2025 00:00:00 GMT</pubDate>
+  </item><item>
     <title>Deriválás és Integrálás</title>
     <link>https://quartz.jzhao.xyz/Deriv%C3%A1l%C3%A1s-%C3%A9s-Integr%C3%A1l%C3%A1s</link>
     <guid>https://quartz.jzhao.xyz/Deriv%C3%A1l%C3%A1s-%C3%A9s-Integr%C3%A1l%C3%A1s</guid>
@@ -22,18 +64,6 @@
     <link>https://quartz.jzhao.xyz/G%C3%B6rb%C3%A9k-Elemz%C3%A9se-%C3%A9s-Optimaliz%C3%A1ci%C3%B3</link>
     <guid>https://quartz.jzhao.xyz/G%C3%B6rb%C3%A9k-Elemz%C3%A9se-%C3%A9s-Optimaliz%C3%A1ci%C3%B3</guid>
     <description>Görbék Elemzése és Optimalizáció Ebben a fejezetben a függvények görbéinek alapos elemzésére koncentrálunk, így megismerhetjük, hogyan határozzuk meg a lokális szélsőértékeket, ...</description>
-    <pubDate>Mon, 17 Feb 2025 00:00:00 GMT</pubDate>
-  </item><item>
-    <title>Sorfejtések: Taylor-sorok és Fourier-sorok</title>
-    <link>https://quartz.jzhao.xyz/Sorfejt%C3%A9sek,-Taylor-sorok-%C3%A9s-Fourier-sorok</link>
-    <guid>https://quartz.jzhao.xyz/Sorfejt%C3%A9sek,-Taylor-sorok-%C3%A9s-Fourier-sorok</guid>
-    <description>Sorfejtések: Taylor-sorok és Fourier-sorok Ebben a fejezetben a függvények sorfejtéseinek világába merülünk el. Megismerkedünk a Taylor-sor és a Fourier-sor alapjaival, amelyek segítségével a függvényeket végtelen polinomok vagy hullámok formájában közelíthetjük.</description>
-    <pubDate>Mon, 17 Feb 2025 00:00:00 GMT</pubDate>
-  </item><item>
-    <title>Bevezetés a Matematikai Függvények Világába</title>
-    <link>https://quartz.jzhao.xyz/</link>
-    <guid>https://quartz.jzhao.xyz/</guid>
-    <description>Bevezetés a Matematikai Függvények Világába Üdvözlünk a matematikai függvények oktatóanyagában! Ebben a könyvtárban célunk, hogy bemutassuk a függvények alapjait, típusait ...</description>
     <pubDate>Mon, 17 Feb 2025 00:00:00 GMT</pubDate>
   </item>
     </channel>
