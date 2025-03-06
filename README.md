@@ -1,77 +1,118 @@
 # f(xit) Fügvény ábrázoló
 
-### Figyelem! A projektben hamarosan újabb nagyobb volumenű Update-ok fognak megjelenni! 
-PL: Geometriai ábrázoló, web verzió javítása.
+**Figyelem!**  
+A projektben hamarosan újabb, nagyobb volumenű update-ok fognak megjelenni!  
+*Például: Geometriai ábrázoló, web verzió javítása.*
 
-**Ez a projekt egy interaktív grafikonrajzoló alkalmazás,** amely több matematikai és vizualizációs funkciót kínál. A programban függvények bevitele, rajzolása, animálása, deriváltak és integrálok számítása, valamint extra eszközök (például poligonmérés, marker és jegyzetelés) érhetők el.
-Főbb funkciók
+---
 
-### Függvény rajzolás:
+## Leírás
 
-***Támogatottak a hagyományos függvények, sőt polár függvények is (az "isPolar" opció bekapcsolásával).***
+Ez a projekt egy **interaktív grafikonrajzoló alkalmazás**, amely számos matematikai és vizualizációs funkcióval rendelkezik. Az alkalmazás segítségével:
+- Beviheted, rajzolhatod és animálhatod a függvényeket.
+- Számíthatod a deriváltakat és integrálokat.
+- Használhatod az extra eszközöket, mint például poligonmérés, marker és jegyzetelés.
 
-### Animáció:
+---
 
-***Az alkalmazás képes animálni olyan függvényeket, amelyekben szerepel a t változó. Az animáció során a t értéke folyamatosan változik, így a függvény grafikonja dinamikusan módosul.***
+## Főbb Funkciók
 
-### Derivált és tangent vonal:
+### Függvény Rajzolás
+- **Támogatottak a hagyományos függvények, sőt polár függvények is**  
+  *(Az "isPolar" opció bekapcsolásával.)*
 
-    Derivált számítása kis numerikus lépéssel, illetve a tangent vonal kirajzolása az adott pontban.
+### Animáció
+- **Dinamikus animáció:**  
+  Az alkalmazás képes animálni olyan függvényeket, amelyekben szerepel a `t` változó. Az animáció során a `t` értéke folyamatosan változik, így a grafikon dinamikusan módosul.
 
-### Integrálás:
+### Derivált és Tangent Vonalk
+- **Numerikus derivált számítása:**  
+  Kis lépésekben számolja a deriváltat, és kirajzolja a tangent vonalat az adott pontban.
 
-    Az integrál értékének számítása adott intervallumon, valamint a terület árnyékolása a grafikonon.
+### Integrálás
+- **Integrál értékének számítása:**  
+  Meghatározza az integrál értékét egy adott intervallumon, valamint árnyékolja a területet a grafikonon.
 
-### Extra eszközök:
+### Extra Eszközök
+- **Marker, poligonmérés és beépített számológép:**  
+  Segítségével terület- és kerületszámítást végezhetsz, illetve extra műveleteket hajthatsz végre.
 
-    Marker eszköz, poligon mérés (terület, kerület számítása), valamint egy beépített számológép.
+### Jegyzetelés
+- **Külön jegyzet panel:**  
+  Itt két mód közül választhatsz:
+    - **Plain mód:** Egyszerű szövegszerkesztő egyenletszerkesztő gombbal.
+    - **Markdown mód:** Támogatja a Markdown szintaxist *(dőlt, félkövér, címsorok)* és LaTeX-szerű matematikai jelöléseket.
 
-### Jegyzetelés:
+---
 
-    Külön jegyzet panel áll rendelkezésre, ahol a felhasználó választhat két mód közül:
-        Plain mód: Egyszerű szövegszerkesztő, egyenletszerkesztő gombbal.
-        Markdown mód: Támogatja a Markdown szintaxist (dőlt, félkövér, címsorok) és LaTeX-szerű matematikai jelöléseket.
+## Telepítés és Futtatás
 
-### Telepítés és futtatás
+### Követelmények
+- **Java 8 vagy újabb**
+- **Kotlin** *(amennyiben Kotlin-ban fejlesztetted a kódot)*
+- **exp4j könyvtár** *(a függvények kiértékeléséhez)*
 
-### Követelmények:
-    - Java 8 vagy újabb
-    - Kotlin (ha Kotlin-ban fejlesztetted a kódot)
-    - Az exp4j könyvtár (a függvények kiértékeléséhez)
+### Fordítás és Futtatás
+1. **Klónozd a repót.**
+2. **Nyisd meg a projektet a kedvenc IDE-dben** *(IntelliJ IDEA javasolt)*.
+3. **Ellenőrizd a függőségeket:** Győződj meg róla, hogy minden szükséges függőség *(pl. exp4j)* elérhető.
+4. **Futtasd a programot:** Indítsd el a `main()` függvényt a `MainFrame` osztályban.
 
-### Fordítás és futtatás:
-        - Klónozd a repót, majd nyisd meg a kedvenc IDE-dben (IntelliJ IDEA javasolt).
-        - Győződj meg róla, hogy az összes szükséges függőség (pl. exp4j) elérhető.
-        - Futtasd a main() függvényt a MainFrame osztályban.
+---
 
-### Használat
+## Használat
 
-### Függvények bevitele:
-A bal oldali fülön, a "Függvények" lapon található panelen add meg a függvény képletét, a domain határait, válaszd ki a színt, vonalvastagságot, illetve a polár módot, ha szükséges.
+### Függvények Bevite
+- A bal oldali fülön, a **"Függvények"** lapon található panelen add meg:
+    - A függvény képletét.
+    - A domain határait.
+    - A kívánt színt, vonalvastagságot.
+    - Szükség esetén a polár mód aktiválását.
 
-### Számol & Rajzol:
-A "Számol & Rajzol" gomb megnyomása után a program kirajzolja a függvényeket, kiszámolja a zérushelyeket, metszéspontokat, stb.
+### Számol & Rajzol
+- A **"Számol & Rajzol"** gomb megnyomása után az alkalmazás kirajzolja a függvényeket, kiszámolja a zérushelyeket, metszéspontokat, stb.
 
-### Animáció:
-Ha a függvény képletében szerepel a t változó, az "Animate" gomb megnyomásával elindíthatod az animációt. A gomb újra megnyomásával leállíthatod.
+### Animáció
+- Ha a függvény képletében szerepel a `t` változó, az **"Animate"** gomb segítségével elindíthatod az animációt. A gomb ismételt megnyomásával leállíthatod az animációt.
 
-### Jegyzetelés:
-A "Jegyzetek" fülön választhatsz a Plain vagy Markdown mód között. Itt jegyzetelhetsz, illetve beilleszthetsz egyenleteket az egyenletszerkesztő segítségével. A jegyzeteket elmentheted vagy betöltheted.
+### Jegyzetelés
+- A **"Jegyzetek"** fülön választhatsz a **Plain** vagy **Markdown** mód között:
+    - **Plain mód:** Egyszerű jegyzetelés.
+    - **Markdown mód:** Kiterjedt formázási lehetőségek (Markdown és LaTeX-szerű jelölések) használata.
+- Jegyzeteidet elmentheted vagy betöltheted későbbi munkához.
 
-### Extra funkciók:
-A "Extra funkciók" panelen elérhetők a számológép, derivált számítás, integrál számítás, marker eszköz és egyéb extra műveletek.
+### Extra Funkciók
+- Az **"Extra funkciók"** panelen elérhetők:
+    - Beépített számológép.
+    - Derivált számítás.
+    - Integrál számítás.
+    - Marker eszköz és egyéb extra műveletek.
 
-### Testreszabás
+---
 
-A beállítások dialógusban módosíthatod a grafikon megjelenését (pl. rács, tengelyek, háttérszín, stb.).
-    A bal oldali panelen a függvény hozzárendelési szabályát is megadhatod, így az alapértelmezett képlet könnyen módosítható.
+## Testreszabás
 
-### Fejlesztési ötletek
+- **Grafikon beállítások:**  
+  A beállítások dialógusban módosíthatod a grafikon megjelenését, például a rácsot, tengelyeket, háttérszínt, stb.
+- **Függvény hozzárendelési szabály:**  
+  A bal oldali panelen megadhatod a függvény alapértelmezett képletét, így könnyen testreszabhatod a megjelenést.
 
-    További matematikai függvények hozzáadása az exp4j-hoz.
-    Részletesebb Markdown támogatás, például MathJax integráció a teljes LaTeX támogatáshoz.
-    Exportálási lehetőségek kiterjesztése (pl. SVG vagy PDF formátum).
+---
 
-### Kapcsolat
+## Fejlesztési Ötletek
 
-Ha kérdésed, javaslatod vagy hibajelentésed van, kérlek nyisd meg a GitHub Issues részt a projekt repójában, vagy írj nekem a megadott elérhetőségeken.
+- Új matematikai függvények hozzáadása az **exp4j**-hoz.
+- Részletesebb **Markdown támogatás**: Például MathJax integráció a teljes LaTeX támogatás érdekében.
+- Exportálási lehetőségek kiterjesztése, mint például **SVG** vagy **PDF** formátum.
+
+---
+
+## Kapcsolat
+
+Ha kérdésed, javaslatod vagy hibajelentésed van, kérlek:
+- Nyisd meg a **GitHub Issues** részt a projekt repójában, vagy
+- Vedd fel velem a kapcsolat a megadott elérhetőségeken.
+
+---
+
+

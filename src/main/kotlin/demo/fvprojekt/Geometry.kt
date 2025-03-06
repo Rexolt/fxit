@@ -722,7 +722,7 @@ class ComplexGeometryFrame : JFrame("F(xit) Geo") {
             geometryPanel.selectedShape = null
             geometryPanel.repaint()
         } }
-        
+
         val btnBisector = JButton("Szakaszfelező").apply { addActionListener { geometryPanel.currentTool = Tool.ADD_BISECTOR; geometryPanel.tempPoints.clear() } }
         val btnParallel = JButton("Párhuzamos").apply { addActionListener { geometryPanel.currentTool = Tool.ADD_PARALLEL; geometryPanel.tempPoints.clear() } }
         val btnPerpendicular = JButton("Merőleges").apply { addActionListener { geometryPanel.currentTool = Tool.ADD_PERPENDICULAR; geometryPanel.tempPoints.clear() } }
