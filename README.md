@@ -3,7 +3,7 @@
 **Figyelem!**  
 A projektben hamarosan újabb, nagyobb volumenű update-ok fognak megjelenni!  
 *Például: Geometriai ábrázoló, web verzió javítása.*
-
+*(Felfüggesztve!)*
 ---
 
 ## Leírás
