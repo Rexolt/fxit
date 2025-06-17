@@ -22,18 +22,33 @@ class LauncherFrame : JFrame("f(xit) Launcher") {
     init {
         defaultCloseOperation = EXIT_ON_CLOSE
         layout = BorderLayout()
-        setSize(500, 150)
+        setSize(600, 300)
         setLocationRelativeTo(null)
 
+        iconImage = loadIcon("/icons/app-icon.png", 32, 32).image
 
-        val gridPanel = JPanel(GridLayout(1, 4, 10, 10)).apply {
-            border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        val header = JPanel(BorderLayout()).apply {
+            border = BorderFactory.createEmptyBorder(20, 20, 10, 20)
             background = UIManager.getColor("Panel.background")
         }
 
+        val titleLabel = JLabel("Welcome to f(xit)").apply {
+            font = Font("SansSerif", Font.BOLD, 24)
+            horizontalAlignment = SwingConstants.CENTER
+        }
+
+        val logoLabel = JLabel(loadIcon("/icons/app-icon.png", 48, 48))
+        header.add(logoLabel, BorderLayout.WEST)
+        header.add(titleLabel, BorderLayout.CENTER)
+
+        val gridPanel = JPanel(GridLayout(2, 2, 15, 15)).apply {
+            border = BorderFactory.createEmptyBorder(10, 20, 20, 20)
+            background = UIManager.getColor("Panel.background")
+        }
 
         val launchButton = RoundedButton("Launch Application").apply {
-            preferredSize = Dimension(100, 40)
+            preferredSize = Dimension(140, 50)
+            font = Font("SansSerif", Font.BOLD, 16)
             addActionListener {
                 SwingUtilities.invokeLater {
                     val mainFrame = MainFrame()
@@ -43,9 +58,9 @@ class LauncherFrame : JFrame("f(xit) Launcher") {
             }
         }
 
-
         val settingsButton = RoundedButton("Settings").apply {
-            preferredSize = Dimension(100, 40)
+            preferredSize = Dimension(140, 50)
+            font = Font("SansSerif", Font.BOLD, 16)
             addActionListener {
                 JOptionPane.showMessageDialog(
                     this@LauncherFrame,
@@ -56,9 +71,9 @@ class LauncherFrame : JFrame("f(xit) Launcher") {
             }
         }
 
-
         val aboutButton = RoundedButton("About").apply {
-            preferredSize = Dimension(100, 40)
+            preferredSize = Dimension(140, 50)
+            font = Font("SansSerif", Font.BOLD, 16)
             addActionListener {
                 JOptionPane.showMessageDialog(
                     this@LauncherFrame,
@@ -69,9 +84,9 @@ class LauncherFrame : JFrame("f(xit) Launcher") {
             }
         }
 
-
         val functionGrapherButton = RoundedButton("Függvény Rajzoló").apply {
-            preferredSize = Dimension(100, 40)
+            preferredSize = Dimension(140, 50)
+            font = Font("SansSerif", Font.BOLD, 16)
             addActionListener {
                 JOptionPane.showMessageDialog(
                     this@LauncherFrame,
@@ -87,6 +102,7 @@ class LauncherFrame : JFrame("f(xit) Launcher") {
         gridPanel.add(aboutButton)
         gridPanel.add(functionGrapherButton)
 
+        add(header, BorderLayout.NORTH)
         add(gridPanel, BorderLayout.CENTER)
     }
 }
