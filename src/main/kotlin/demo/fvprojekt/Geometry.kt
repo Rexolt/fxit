@@ -1,3 +1,5 @@
+package demo.fvprojekt.demo.fvprojekt
+
 import com.formdev.flatlaf.FlatDarkLaf
 import java.awt.*
 import java.awt.event.*
@@ -555,8 +557,9 @@ class ComplexGeometryPanel : JPanel() {
                         s.p2 = reflectPoint(s.p2, lineP1, lineP2)
                     }
                     is AngleShape -> {
-
-                    } else -> {}
+                        // Reflection of angles is not implemented yet
+                    }
+                    else -> {}
                 }
             }
             Tool.ROTATE_AROUND_POINT -> {
@@ -593,8 +596,9 @@ class ComplexGeometryPanel : JPanel() {
                         s.p2 = rotatePoint(s.p2, pivot, angle)
                     }
                     is AngleShape -> {
-
-                    } else -> {}
+                        // Rotation around pivot for angles is not implemented
+                    }
+                    else -> {}
                 }
             }
             Tool.CENTRAL_DILATION -> {
@@ -634,8 +638,9 @@ class ComplexGeometryPanel : JPanel() {
                         s.p2 = scalePoint(s.p2, center, factor)
                     }
                     is AngleShape -> {
-
-                    } else -> {}
+                        // Scaling of angles is not implemented yet
+                    }
+                    else -> {}
                 }
             }
             Tool.ADD_COMPASS -> {
